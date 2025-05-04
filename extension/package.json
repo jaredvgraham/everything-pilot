@@ -1,0 +1,14 @@
+{
+  "name": "ai-autocomplete-extension",
+  "version": "1.0.0",
+  "description": "AI-powered text autocomplete for input fields",
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite build --watch"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.318",
+    "typescript": "^5.0.0",
+    "vite": "^5.0.0"
+  }
+}
