@@ -20,7 +20,9 @@ export async function OPTIONS() {
 export async function POST(request: Request) {
   console.log("Autocomplete API called");
   try {
-    const { input } = await request.json();
+    const { input, context } = await request.json();
+
+    console.log("context", context);
 
     if (!input) {
       return NextResponse.json({ error: "Input is required" }, { status: 400 });
