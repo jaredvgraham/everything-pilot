@@ -38,32 +38,79 @@ async function getSuggestion(input: string): Promise<string | null> {
   }
 }
 
+function getElementText(element: Element): string {
+  if (
+    element instanceof HTMLInputElement ||
+    element instanceof HTMLTextAreaElement
+  ) {
+    return element.value;
+  } else if (element instanceof HTMLElement && element.isContentEditable) {
+    return element.innerText;
+  }
+  return "";
+}
+
+function setElementText(element: Element, text: string) {
+  if (
+    element instanceof HTMLInputElement ||
+    element instanceof HTMLTextAreaElement
+  ) {
+    element.value = text;
+  } else if (element instanceof HTMLElement && element.isContentEditable) {
+    element.innerText = text;
+  }
+}
+
 function updateGhostText(
-  element: HTMLInputElement | HTMLTextAreaElement,
+  element: HTMLInputElement | HTMLTextAreaElement | HTMLElement,
   suggestion: string
 ) {
   console.log("[AI Autocomplete] Updating ghost text:", suggestion);
   if (!ghostElement) {
     ghostElement = createGhostElement();
-    element.parentElement?.appendChild(ghostElement);
+    if (
+      element instanceof HTMLInputElement ||
+      element instanceof HTMLTextAreaElement
+    ) {
+      element.parentElement?.appendChild(ghostElement);
+    } else if (element instanceof HTMLElement && element.isContentEditable) {
+      element.appendChild(ghostElement);
+      ghostElement.style.position = "static";
+      ghostElement.style.display = "inline";
+      ghostElement.style.opacity = "0.5";
+      ghostElement.style.color = "#666";
+      ghostElement.style.pointerEvents = "none";
+    }
   }
 
-  const rect = element.getBoundingClientRect();
-  ghostElement.style.position = "absolute";
-  ghostElement.style.left = `${rect.left}px`;
-  ghostElement.style.top = `${rect.top}px`;
-  ghostElement.style.width = `${rect.width}px`;
-  ghostElement.style.height = `${rect.height}px`;
-  ghostElement.style.fontSize = window.getComputedStyle(element).fontSize;
-  ghostElement.style.fontFamily = window.getComputedStyle(element).fontFamily;
-  ghostElement.style.padding = window.getComputedStyle(element).padding;
-  ghostElement.style.border = window.getComputedStyle(element).border;
-  ghostElement.textContent = element.value + suggestion;
+  if (
+    element instanceof HTMLInputElement ||
+    element instanceof HTMLTextAreaElement
+  ) {
+    const rect = element.getBoundingClientRect();
+    ghostElement.style.position = "absolute";
+    ghostElement.style.left = `${rect.left}px`;
+    ghostElement.style.top = `${rect.top}px`;
+    ghostElement.style.width = `${rect.width}px`;
+    ghostElement.style.height = `${rect.height}px`;
+    ghostElement.style.fontSize = window.getComputedStyle(element).fontSize;
+    ghostElement.style.fontFamily = window.getComputedStyle(element).fontFamily;
+    ghostElement.style.padding = window.getComputedStyle(element).padding;
+    ghostElement.style.border = window.getComputedStyle(element).border;
+    ghostElement.textContent = getElementText(element) + suggestion;
+  } else if (element instanceof HTMLElement && element.isContentEditable) {
+    // For contenteditable, show only the suggestion as ghost text after the current text
+    ghostElement.textContent = suggestion;
+  }
 }
 
 function handleInput(event: Event) {
-  const element = event.target as HTMLInputElement | HTMLTextAreaElement;
-  console.log("[AI Autocomplete] Input event detected:", element.value);
+  const element = event.target as
+    | HTMLInputElement
+    | HTMLTextAreaElement
+    | HTMLElement;
+  const text = getElementText(element);
+  console.log("[AI Autocomplete] Input event detected:", text);
 
   // Immediately clear current suggestion and ghost text
   currentSuggestion = null;
@@ -78,7 +125,7 @@ function handleInput(event: Event) {
   }
 
   debounceTimer = window.setTimeout(async () => {
-    const suggestion = await getSuggestion(element.value);
+    const suggestion = await getSuggestion(text);
     if (suggestion) {
       currentSuggestion = suggestion;
       updateGhostText(element, suggestion);
@@ -90,6 +137,10 @@ function handleKeyDown(event: Event) {
   console.log("handleKeyDown");
 
   const keyboardEvent = event as KeyboardEvent;
+  const element = keyboardEvent.target as
+    | HTMLInputElement
+    | HTMLTextAreaElement
+    | HTMLElement;
   if (
     (keyboardEvent.key === "Tab" || keyboardEvent.key === "ArrowRight") &&
     currentSuggestion
@@ -99,10 +150,8 @@ function handleKeyDown(event: Event) {
       keyboardEvent.key
     );
     keyboardEvent.preventDefault();
-    const element = keyboardEvent.target as
-      | HTMLInputElement
-      | HTMLTextAreaElement;
-    element.value += currentSuggestion;
+    const text = getElementText(element) + currentSuggestion;
+    setElementText(element, text);
     currentSuggestion = null;
     if (ghostElement) {
       ghostElement.remove();
@@ -113,7 +162,7 @@ function handleKeyDown(event: Event) {
 
 function initialize() {
   const inputs = document.querySelectorAll(
-    'input:not([type="password"]), textarea'
+    'input:not([type="password"]), textarea, [contenteditable="true"]'
   );
   console.log(
     `[AI Autocomplete] Initializing. Found ${inputs.length} input(s)/textarea(s).`
@@ -133,7 +182,7 @@ const observer = new MutationObserver((mutations) => {
   mutations.forEach((mutation) => {
     if (mutation.addedNodes.length) {
       const inputs = document.querySelectorAll(
-        'input:not([type="password"]), textarea'
+        'input:not([type="password"]), textarea, [contenteditable="true"]'
       );
       inputs.forEach((input) => {
         if (!input.hasAttribute("data-autocomplete-initialized")) {

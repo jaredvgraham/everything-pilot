@@ -5,6 +5,18 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+// Handle preflight (OPTIONS) requests
+export async function OPTIONS() {
+  return new Response(null, {
+    status: 204,
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type",
+    },
+  });
+}
+
 export async function POST(request: Request) {
   console.log("Autocomplete API called");
   try {
@@ -29,7 +41,19 @@ export async function POST(request: Request) {
     const suggestion = completion.choices[0]?.message?.content || "";
     const tokens = completion.usage?.total_tokens || 0;
 
-    return NextResponse.json({ suggestion });
+    const suggestionWithQuotes = suggestion.replace(/^"|"$/g, "");
+
+    console.log("Suggestion:", suggestion);
+    console.log("Tokens:", tokens);
+
+    return NextResponse.json(
+      { suggestion: suggestionWithQuotes },
+      {
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+        },
+      }
+    );
   } catch (error) {
     console.error("Error in autocomplete:", error);
     return NextResponse.json(
