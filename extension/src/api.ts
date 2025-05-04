@@ -2,6 +2,8 @@
 // API Communication Helpers
 // =====================
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 /**
  * Calls the backend to get an AI suggestion for the given input and context.
  */
@@ -11,7 +13,7 @@ export async function getSuggestion(
 ): Promise<string | null> {
   console.log("[AI Autocomplete] Fetching suggestion for input:", input);
   try {
-    const response = await fetch("http://localhost:3000/api/autocomplete", {
+    const response = await fetch(`${API_BASE_URL}/autocomplete`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

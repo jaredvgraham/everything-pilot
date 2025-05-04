@@ -36,9 +36,16 @@ export function handleInput(event: Event) {
   }
 
   debounceTimer = window.setTimeout(async () => {
+    if (!text.trim()) {
+      return;
+    }
     const context = extractGenericContext(element);
     console.log("[AI Autocomplete] Extracted context:", context);
-    const suggestion = await getSuggestion(text, context);
+    console.log("context length:", context.length);
+
+    const limitContext = context.slice(0, 1000);
+    console.log("limit context length:", limitContext.length);
+    const suggestion = await getSuggestion(text, limitContext);
     if (suggestion) {
       currentSuggestion = suggestion;
       if (!ghostElement) {

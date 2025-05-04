@@ -28,12 +28,18 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Input is required" }, { status: 400 });
     }
 
+    const prompt = `Continue the user's text as if you are the user, not an assistant. Do NOT answer questions or give advice. Only autocomplete the next few words or sentence. User's context (may or may not be relevant): ${
+      context || "(none)"
+    }
+User's text so far: "${input}"
+AI's suggestion:`;
+
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
         {
           role: "user",
-          content: `You are an AI writing assistant. Given the following partial text, suggest a natural and helpful continuation. Only return the next few words or sentence, not the whole message.\n\nText so far: "${input}"\nAI's suggestion:`,
+          content: prompt,
         },
       ],
       max_tokens: 50,
