@@ -1,4 +1,4 @@
-import { handleInput, handleKeyDown } from "./events";
+import { handleInput, handleKeyDown, handleFocusOut } from "./events";
 
 console.log("[AI Autocomplete] Content script loaded");
 
@@ -12,6 +12,7 @@ function initialize() {
   inputs.forEach((input) => {
     input.addEventListener("input", handleInput);
     input.addEventListener("keydown", handleKeyDown as EventListener);
+    input.addEventListener("focusout", handleFocusOut);
     console.log("[AI Autocomplete] Listener attached to:", input);
   });
 }
@@ -30,6 +31,7 @@ const observer = new MutationObserver((mutations) => {
         if (!input.hasAttribute("data-autocomplete-initialized")) {
           input.addEventListener("input", handleInput);
           input.addEventListener("keydown", handleKeyDown as EventListener);
+          input.addEventListener("focusout", handleFocusOut);
           input.setAttribute("data-autocomplete-initialized", "true");
           console.log(
             "[AI Autocomplete] Listener attached to (dynamic):",

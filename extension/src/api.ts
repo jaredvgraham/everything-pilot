@@ -12,13 +12,15 @@ export async function getSuggestion(
   context: string
 ): Promise<string | null> {
   console.log("[AI Autocomplete] Fetching suggestion for input:", input);
+  console.log("[AI Autocomplete] API Base URL:", API_BASE_URL);
   try {
+    const site = window.location.hostname;
     const response = await fetch(`${API_BASE_URL}/autocomplete`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ input, context }),
+      body: JSON.stringify({ input, context, site }),
     });
 
     if (!response.ok) {

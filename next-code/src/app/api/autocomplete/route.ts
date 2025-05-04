@@ -20,15 +20,16 @@ export async function OPTIONS() {
 export async function POST(request: Request) {
   console.log("Autocomplete API called");
   try {
-    const { input, context } = await request.json();
+    const { input, context, site } = await request.json();
 
     console.log("context", context);
+    console.log("site", site);
 
     if (!input) {
       return NextResponse.json({ error: "Input is required" }, { status: 400 });
     }
 
-    const prompt = `Continue the user's text as if you are the user, not an assistant. Do NOT answer questions or give advice. Only autocomplete the next few words or sentence. User's context (may or may not be relevant): ${
+    const prompt = `Continue the user's text as if you are the user, not an assistant. Do NOT answer questions or give advice. Only autocomplete the next few words or sentence. User's on the website: ${site} and this is the context (may or may not be relevant): ${
       context || "(none)"
     }
 User's text so far: "${input}"

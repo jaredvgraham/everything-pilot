@@ -99,3 +99,14 @@ export function handleKeyDown(event: Event) {
     }
   }
 }
+
+/**
+ * Handles focusout events to remove ghost suggestion when input loses focus.
+ */
+export function handleFocusOut(event: Event) {
+  currentSuggestion = null;
+  if (ghostElement) {
+    ghostElement.remove();
+    ghostElement = null;
+  }
+}
