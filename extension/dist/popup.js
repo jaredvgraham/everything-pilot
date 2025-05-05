@@ -1,0 +1,1 @@
+document.addEventListener("DOMContentLoaded",()=>{const e=document.querySelector(".status-value");chrome.tabs.query({active:!0,currentWindow:!0},n=>{const t=n[0];t&&(e.textContent="Active on "+new URL(t.url).hostname)})});

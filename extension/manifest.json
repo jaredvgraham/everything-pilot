@@ -4,6 +4,9 @@
   "version": "1.0.0",
   "description": "AI-powered text autocomplete for input fields",
   "permissions": ["activeTab"],
+  "action": {
+    "default_popup": "dist/popup/popup.html"
+  },
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
