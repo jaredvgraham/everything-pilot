@@ -51,20 +51,24 @@ observer.observe(document.body, {
 // Listen for token from /extension-login via postMessage
 window.addEventListener("message", (event) => {
   console.log("received message from extension-login");
-  console.log("received message from extension-login");
-  console.log("received message from extension-login");
-  console.log("received message from extension-login");
-  console.log("received message from extension-login");
-  console.log("received message from extension-login");
-  console.log("received message from extension-login");
-  console.log("received message from extension-login");
-  console.log("received message from extension-login");
-  if (event.source !== window) return;
+
+  if (event.source !== window) {
+    console.log("event.source", event.source);
+    console.log("event.sourse is not window");
+
+    return;
+  }
+  console.log("event.data", event.data);
+  console.log("event.data.type", event.data?.type);
+  console.log("event.data.token", event.data?.token);
+
   if (event.data?.type === "CLERK_EXTENSION_AUTH") {
+    console.log("event.data.type is CLERK_EXTENSION_AUTH");
     const token = event.data.token;
     if (token) {
       chrome.storage.local.set({ jwt: token });
       console.log("✅ Clerk JWT stored securely.");
+      console.log("geting the token:", chrome.storage.local.get("jwt"));
     }
   }
 });
