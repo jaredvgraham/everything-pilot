@@ -1,5 +1,4 @@
 import mongoose, { Mongoose } from "mongoose";
-import "../models/index";
 
 const mongoUri = process.env.MONGO_URI;
 
