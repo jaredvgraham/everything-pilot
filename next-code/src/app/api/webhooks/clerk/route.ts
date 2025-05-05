@@ -80,20 +80,26 @@ export async function POST(req: NextRequest) {
       const user = {
         clerkId: id,
         email: email_addresses[0].email_address,
-        plan: "none",
+        plan: "none" as const,
         createdAt: new Date(),
       };
-      console.log("user", user);
+      console.log("Attempting to create user with data:", user);
 
-      const newUser = await createUser({
-        ...user,
-        plan: "none" as const,
-      });
+      try {
+        const newUser = await createUser(user);
+        console.log("User created successfully:", newUser);
 
-      console.log("newUser", newUser);
-
-      if (newUser) {
-        return NextResponse.json({ message: "New user Created", status: 200 });
+        if (newUser) {
+          return NextResponse.json({
+            message: "New user Created",
+            status: 200,
+          });
+        }
+      } catch (error: any) {
+        console.error("Error creating user:", error);
+        return new Response(`Error creating user: ${error.message}`, {
+          status: 500,
+        });
       }
     }
 

@@ -23,7 +23,7 @@ const userSchema = new Schema({
   plan: {
     type: String,
     required: true,
-    default: "free",
+    default: "none",
   },
   createdAt: {
     type: Date,
