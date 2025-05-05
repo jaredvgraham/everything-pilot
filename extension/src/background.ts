@@ -39,9 +39,37 @@ chrome.runtime.onInstalled.addListener(() => {
 });
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  console.log("🔐 Message received:", message);
   if (message.type === "CLERK_EXTENSION_AUTH") {
+    console.log("its clerk extension auth");
+
     const { token } = message;
     chrome.storage.local.set({ jwt: token });
     console.log("✅ Token received and stored:", token);
+    console.log("get token", chrome.storage.local.get("jwt"));
+    sendResponse({ success: true });
   }
 });
+
+chrome.runtime.onMessageExternal.addListener(
+  (message, sender, sendResponse) => {
+    console.log("🔐 External message received:", message);
+
+    if (message?.type === "CLERK_EXTENSION_AUTH") {
+      const { token } = message;
+
+      chrome.storage.local.set({ jwt: token }, () => {
+        console.log("✅ Token received and stored:", token);
+
+        // Confirm storage
+        chrome.storage.local.get("jwt", (data) => {
+          console.log("🔎 Verified stored token:", data.jwt);
+        });
+
+        sendResponse({ success: true });
+      });
+
+      return true; // IMPORTANT: keeps the sendResponse channel open for async call
+    }
+  }
+);

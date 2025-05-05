@@ -13,12 +13,28 @@ export async function getSuggestion(
 ): Promise<string | null> {
   console.log("[AI Autocomplete] Fetching suggestion for input:", input);
   console.log("[AI Autocomplete] API Base URL:", API_BASE_URL);
+
   try {
     const site = window.location.hostname;
+
+    // Step 1: Get the stored token from chrome.storage.local
+    const token = await new Promise<string | null>((resolve) => {
+      chrome.storage.local.get("jwt", (data) => {
+        resolve(data.jwt ?? null);
+      });
+    });
+
+    if (!token) {
+      console.warn("[AI Autocomplete] No JWT token found");
+      return null;
+    }
+
+    // Step 2: Use it in the Authorization header
     const response = await fetch(`${API_BASE_URL}/autocomplete`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`, // <-- attach the token here
       },
       body: JSON.stringify({ input, context, site }),
     });
