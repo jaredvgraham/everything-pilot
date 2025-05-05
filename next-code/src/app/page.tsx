@@ -7,7 +7,7 @@ declare global {
   interface Window {
     chrome: {
       runtime: {
-        sendMessage: (message: any) => void;
+        sendMessage: (extensionId: string, message: any) => void;
       };
     };
   }
@@ -41,13 +41,16 @@ export default function Home() {
         if (
           typeof window !== "undefined" &&
           "chrome" in window &&
-          window.chrome?.runtime?.sendMessage
+          window.chrome?.runtime?.sendMessage &&
+          process.env.NEXT_PUBLIC_CHROME_EXTENSION_ID
         ) {
-          window.chrome.runtime.sendMessage({
-            extensionId: process.env.NEXT_PUBLIC_CHROME_EXTENSION_ID,
-            type: "CLERK_EXTENSION_AUTH",
-            token,
-          });
+          window.chrome.runtime.sendMessage(
+            process.env.NEXT_PUBLIC_CHROME_EXTENSION_ID,
+            {
+              type: "CLERK_EXTENSION_AUTH",
+              token,
+            }
+          );
           console.log("✅ Sent token to background script");
         } else {
           console.log("⚠️ chrome.runtime is not available");
