@@ -50,6 +50,15 @@ observer.observe(document.body, {
 
 // Listen for token from /extension-login via postMessage
 window.addEventListener("message", (event) => {
+  console.log("received message from extension-login");
+  console.log("received message from extension-login");
+  console.log("received message from extension-login");
+  console.log("received message from extension-login");
+  console.log("received message from extension-login");
+  console.log("received message from extension-login");
+  console.log("received message from extension-login");
+  console.log("received message from extension-login");
+  console.log("received message from extension-login");
   if (event.source !== window) return;
   if (event.data?.type === "CLERK_EXTENSION_AUTH") {
     const token = event.data.token;

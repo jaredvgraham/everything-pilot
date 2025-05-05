@@ -15,6 +15,11 @@ export default function ExtensionLoginPage() {
 
       // Send token to extension
       window.opener?.postMessage({ type: "CLERK_EXTENSION_AUTH", token }, "*");
+      console.log("posting token to extension");
+      console.log("posting token to extension");
+      console.log("posting token to extension");
+      console.log("posting token to extension");
+
       window.close(); // Optional auto-close
     };
 
