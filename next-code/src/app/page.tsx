@@ -18,33 +18,34 @@ export default function Home() {
         return;
       }
 
-      let token = await getToken({ template: "extension" });
-      if (!token && session) {
-        token = await session.getToken();
-      }
+      console.log("trying session.getToken()");
+      const token = await session?.getToken();
 
       if (!token) {
-        console.log("no token found");
+        console.log("❌ no token found");
         return;
       }
-      console.log("token", token);
 
-      // Send token to extension
+      console.log("✅ final token to send:", token);
+
       try {
-        window.opener?.postMessage(
-          { type: "CLERK_EXTENSION_AUTH", token },
-          "*"
-        );
-        console.log("posting token to extension");
+        if (!window.opener) {
+          console.log("⚠️ No opener found (window.opener is null)");
+        } else {
+          window.opener.postMessage(
+            { type: "CLERK_EXTENSION_AUTH", token },
+            "*"
+          );
+          console.log("✅ Posted token to opener");
+        }
       } catch (error) {
         console.log("error posting token to extension", error);
       }
-
-      // window.close(); // Optional auto-close
     };
 
     sendTokenToExtension();
   }, [isLoaded, isSignedIn, session]);
+
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">

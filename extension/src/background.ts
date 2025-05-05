@@ -9,7 +9,7 @@
 
 function openLoginPopup() {
   chrome.windows.create({
-    url: "https://everything-pilot.vercel.app/extension-login", // ← Replace with your domain
+    url: "https://everything-pilot.vercel.app/sign-in", // ← Replace with your domain
     type: "popup",
     width: 480,
     height: 620,
