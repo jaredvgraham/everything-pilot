@@ -37,3 +37,11 @@ chrome.runtime.onInstalled.addListener(() => {
     }
   });
 });
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.type === "CLERK_EXTENSION_AUTH") {
+    const { token } = message;
+    chrome.storage.local.set({ jwt: token });
+    console.log("✅ Token received and stored:", token);
+  }
+});

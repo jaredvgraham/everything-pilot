@@ -3,6 +3,16 @@ import Image from "next/image";
 import { useEffect } from "react";
 import { useAuth, useSession } from "@clerk/nextjs";
 
+declare global {
+  interface Window {
+    chrome: {
+      runtime: {
+        sendMessage: (message: any) => void;
+      };
+    };
+  }
+}
+
 export default function Home() {
   const { isLoaded, isSignedIn, getToken } = useAuth();
   const { session } = useSession();
@@ -27,16 +37,19 @@ export default function Home() {
       }
 
       console.log("✅ final token to send:", token);
-
       try {
-        if (!window.opener) {
-          console.log("⚠️ No opener found (window.opener is null)");
+        if (
+          typeof window !== "undefined" &&
+          "chrome" in window &&
+          window.chrome?.runtime?.sendMessage
+        ) {
+          window.chrome.runtime.sendMessage({
+            type: "CLERK_EXTENSION_AUTH",
+            token,
+          });
+          console.log("✅ Sent token to background script");
         } else {
-          window.opener.postMessage(
-            { type: "CLERK_EXTENSION_AUTH", token },
-            "*"
-          );
-          console.log("✅ Posted token to opener");
+          console.log("⚠️ chrome.runtime is not available");
         }
       } catch (error) {
         console.log("error posting token to extension", error);
