@@ -3,14 +3,18 @@
   "name": "AI Autocomplete",
   "version": "1.0.0",
   "description": "AI-powered text autocomplete for input fields",
-  "permissions": ["activeTab"],
+  "permissions": ["activeTab", "storage"],
   "action": {
-    "default_popup": "dist/popup/popup.html"
+    "default_popup": "popup/popup.html"
   },
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["dist/content.js"]
+      "js": ["content.js"]
     }
-  ]
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  }
 }

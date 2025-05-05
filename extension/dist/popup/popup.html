@@ -2,20 +2,23 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>AI Autocomplete</title>
-    <link rel="stylesheet" href="popup.css" />
+    <title>Everything Pilot</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        padding: 1rem;
+        width: 300px;
+      }
+      button {
+        margin-top: 0.5rem;
+      }
+    </style>
   </head>
   <body>
-    <div class="container">
-      <h1>AI Autocomplete</h1>
-      <div class="content">
-        <p>Welcome to AI Autocomplete!</p>
-        <div class="status">
-          <span class="status-label">Status:</span>
-          <span class="status-value">Active</span>
-        </div>
-      </div>
-    </div>
-    <script src="popup.js"></script>
+    <h1>Everything Pilot</h1>
+    <p><strong>Status:</strong> <span id="status-text">Loading...</span></p>
+    <button id="login-btn">Sign In / Sign Up</button>
+
+    <script type="module" src="../popup.js"></script>
   </body>
 </html>

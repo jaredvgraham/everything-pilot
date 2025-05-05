@@ -47,3 +47,15 @@ observer.observe(document.body, {
   childList: true,
   subtree: true,
 });
+
+// Listen for token from /extension-login via postMessage
+window.addEventListener("message", (event) => {
+  if (event.source !== window) return;
+  if (event.data?.type === "CLERK_EXTENSION_AUTH") {
+    const token = event.data.token;
+    if (token) {
+      chrome.storage.local.set({ jwt: token });
+      console.log("✅ Clerk JWT stored securely.");
+    }
+  }
+});
