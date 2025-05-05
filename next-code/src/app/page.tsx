@@ -44,6 +44,7 @@ export default function Home() {
           window.chrome?.runtime?.sendMessage
         ) {
           window.chrome.runtime.sendMessage({
+            extensionId: process.env.NEXT_PUBLIC_CHROME_EXTENSION_ID,
             type: "CLERK_EXTENSION_AUTH",
             token,
           });
