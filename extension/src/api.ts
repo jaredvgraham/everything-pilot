@@ -23,6 +23,7 @@ export async function getSuggestion(
         resolve(data.jwt ?? null);
       });
     });
+    console.log("token", token);
 
     if (!token) {
       console.warn("[AI Autocomplete] No JWT token found");
