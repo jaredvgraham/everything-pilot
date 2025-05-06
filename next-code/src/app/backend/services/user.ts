@@ -7,5 +7,6 @@ export const createUser = async (user: IUser) => {
   await connectDB();
 
   const newUser = await User.create(user);
+
   return newUser;
 };

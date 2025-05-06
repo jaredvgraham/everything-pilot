@@ -29,7 +29,7 @@ export default function Home() {
       }
 
       console.log("trying session.getToken()");
-      const token = await session?.getToken({ template: "extension" });
+      const token = await session?.getToken();
 
       if (!token) {
         console.log("❌ no token found");

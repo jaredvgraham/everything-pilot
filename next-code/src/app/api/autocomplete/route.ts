@@ -1,5 +1,7 @@
-import { auth } from "@clerk/nextjs/server";
-import { NextResponse } from "next/server";
+import { auth, getAuth } from "@clerk/nextjs/server";
+import { NextRequest, NextResponse } from "next/server";
+import { verifyToken } from "@clerk/backend"; // ✅ correct method
+
 import OpenAI from "openai";
 
 const openai = new OpenAI({
@@ -18,22 +20,9 @@ export async function OPTIONS() {
   });
 }
 
-export async function POST(request: Request) {
-  const { userId } = await auth();
-  console.log("userId", userId);
-  if (!userId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-  console.log("Autocomplete API called");
+export async function POST(req: NextRequest) {
   try {
-    const { input, context, site } = await request.json();
-
-    console.log("context", context);
-    console.log("site", site);
-
-    if (!input) {
-      return NextResponse.json({ error: "Input is required" }, { status: 400 });
-    }
+    const { input, context, site } = await req.json();
 
     const prompt = `Continue the user's text as if you are the user, not an assistant. Do NOT answer questions or give advice. Only autocomplete the next few words or sentence. User's on the website: ${site} and this is the context (may or may not be relevant): ${
       context || "(none)"
@@ -43,37 +32,20 @@ AI's suggestion:`;
 
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
-      messages: [
-        {
-          role: "user",
-          content: prompt,
-        },
-      ],
+      messages: [{ role: "user", content: prompt }],
       max_tokens: 50,
       temperature: 0.7,
     });
 
-    const suggestion = completion.choices[0]?.message?.content || "";
-    const tokens = completion.usage?.total_tokens || 0;
-
-    const suggestionWithQuotes = suggestion.replace(/^"|"$/g, "");
-
-    console.log("Suggestion:", suggestion);
-    console.log("Tokens:", tokens);
+    const suggestion =
+      completion.choices[0]?.message?.content?.replace(/^"|"$/g, "") || "";
 
     return NextResponse.json(
-      { suggestion: suggestionWithQuotes },
-      {
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-        },
-      }
+      { suggestion },
+      { headers: { "Access-Control-Allow-Origin": "*" } }
     );
   } catch (error) {
-    console.error("Error in autocomplete:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    console.error("❌ Token verification failed:", error);
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 }

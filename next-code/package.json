@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@clerk/backend": "^1.31.2",
     "@clerk/nextjs": "^6.18.5",
     "autoprefixer": "^10.4.21",
     "mongoose": "^8.14.1",
