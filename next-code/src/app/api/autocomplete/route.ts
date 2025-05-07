@@ -31,17 +31,29 @@ export async function POST(req: NextRequest) {
 
     console.log("context", context);
 
-    const prompt = `Continue the user's text as if you are the user, not an assistant. Do NOT answer questions or give advice. Only autocomplete the next few words or sentence. User's on the website: ${site} and this is the context (may or may not be relevant): ${
-      context || "(none)"
-    }
-User's text so far: "${input}"
-AI's suggestion:`;
+    const prompt = `
+    You are an autocomplete AI. Your job is to continue the user's text as naturally as possible, as if you are typing the next words for them.
+    
+    Context:
+    ${context}
+    
+    User's input so far:
+    "${input}"
+    
+    Instructions:
+    - Do NOT repeat or rephrase the user's input.
+    - Do NOT include the user's input in your response.
+    - Only provide the next words or sentence that would logically follow.
+    - If the user is replying to a message or post, make your completion relevant to that context.
+    
+    Your completion:
+    `;
 
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [{ role: "user", content: prompt }],
       max_tokens: 50,
-      temperature: 0.7,
+      temperature: 0.2,
     });
 
     const suggestion =

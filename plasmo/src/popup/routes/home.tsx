@@ -5,7 +5,7 @@ const syncHost = process.env.PLASMO_PUBLIC_CLERK_SYNC_HOST
 
 export const Home = () => {
   const { user } = useUser()
-
+  console.log("user", user)
   return (
     <div
       style={{
