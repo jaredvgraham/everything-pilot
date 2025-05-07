@@ -1,7 +1,5 @@
 "use client";
 import Image from "next/image";
-import { useEffect } from "react";
-import { useAuth, useSession } from "@clerk/nextjs";
 
 declare global {
   interface Window {
@@ -14,55 +12,6 @@ declare global {
 }
 
 export default function Home() {
-  const { isLoaded, isSignedIn, getToken } = useAuth();
-  const { session } = useSession();
-  console.log("session", session);
-  console.log("isLoaded", isLoaded);
-  console.log("isSignedIn", isSignedIn);
-  useEffect(() => {
-    console.log("in useEffect");
-
-    const sendTokenToExtension = async () => {
-      if (!isLoaded || !isSignedIn) {
-        console.log("not signed in");
-        return;
-      }
-
-      console.log("trying session.getToken()");
-      const token = await session?.getToken();
-
-      if (!token) {
-        console.log("❌ no token found");
-        return;
-      }
-
-      console.log("✅ final token to send:", token);
-      try {
-        if (
-          typeof window !== "undefined" &&
-          "chrome" in window &&
-          window.chrome?.runtime?.sendMessage &&
-          process.env.NEXT_PUBLIC_CHROME_EXTENSION_ID
-        ) {
-          window.chrome.runtime.sendMessage(
-            process.env.NEXT_PUBLIC_CHROME_EXTENSION_ID,
-            {
-              type: "CLERK_EXTENSION_AUTH",
-              token,
-            }
-          );
-          console.log("✅ Sent token to background script");
-        } else {
-          console.log("⚠️ chrome.runtime is not available");
-        }
-      } catch (error) {
-        console.log("error posting token to extension", error);
-      }
-    };
-
-    sendTokenToExtension();
-  }, [isLoaded, isSignedIn, session]);
-
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">

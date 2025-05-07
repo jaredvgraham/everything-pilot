@@ -22,7 +22,14 @@ export async function OPTIONS() {
 
 export async function POST(req: NextRequest) {
   try {
+    const { userId } = await auth();
+    console.log("userId", userId);
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     const { input, context, site } = await req.json();
+
+    console.log("context", context);
 
     const prompt = `Continue the user's text as if you are the user, not an assistant. Do NOT answer questions or give advice. Only autocomplete the next few words or sentence. User's on the website: ${site} and this is the context (may or may not be relevant): ${
       context || "(none)"

@@ -1,23 +1,17 @@
+// =====================
+// ChatGPT Context Extraction
+// =====================
+
+/**
+ * Site-specific: ChatGPT context extraction (last message only)
+ */
 export function extractChatGPTContext(): string | null {
-  const host = window.location.hostname
-  if (!host.includes("chat.openai.com")) {
-    return null
+  const turns = Array.from(
+    document.querySelectorAll('article[data-testid^="conversation-turn-"]')
+  )
+  if (turns.length > 0) {
+    const lastTurn = turns[turns.length - 1]
+    return (lastTurn as HTMLElement).innerText.trim()
   }
-
-  const messages = document.querySelectorAll("[data-message-author-role]")
-  if (!messages.length) {
-    return null
-  }
-
-  const context = Array.from(messages)
-    .map((message) => {
-      const role = message.getAttribute("data-message-author-role")
-      const content = message.querySelector(
-        "[data-message-content]"
-      )?.textContent
-      return `${role}: ${content}`
-    })
-    .join("\n")
-
-  return context
+  return null
 }

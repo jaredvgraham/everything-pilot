@@ -8,6 +8,14 @@ if (!API_BASE_URL) {
   throw new Error("PLASMO_PUBLIC_API_BASE_URL is not set")
 }
 
+async function getAuthToken(): Promise<string | null> {
+  return new Promise((resolve) => {
+    chrome.runtime.sendMessage({ type: "GET_TOKEN" }, (response) => {
+      resolve(response.token)
+    })
+  })
+}
+
 /**
  * Calls the backend to get an AI suggestion for the given input and context.
  */
@@ -20,14 +28,18 @@ export async function getSuggestion(
 
   try {
     const site = window.location.hostname
+    const token = await getAuthToken()
 
-    // Step 1: Get the stored token from chrome.storage.local
+    if (!token) {
+      console.error("[AI Autocomplete] No auth token available")
+      return null
+    }
 
-    // Step 2: Use it in the Authorization header
     const response = await fetch(`${API_BASE_URL}/autocomplete`, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
       },
       body: JSON.stringify({ input, context, site })
     })

@@ -1,15 +1,38 @@
-export function extractTwitterContext(): string | null {
-  const host = window.location.hostname
-  if (!host.includes("twitter.com") && !host.includes("x.com")) {
-    return null
-  }
+// =====================
+// Twitter/X Context Extraction
+// =====================
 
-  const tweetText = document.querySelector(
-    "[data-testid='tweetText']"
-  )?.textContent
-  if (!tweetText) {
-    return null
+/**
+ * Site-specific: Twitter/X context extraction (tweet being replied to)
+ */
+export function extractTwitterContext(inputElement: Element): string | null {
+  // Walk up to find the nearest tweet article
+  let el: Element | null = inputElement
+  while (el && el !== document.body) {
+    if (
+      el.getAttribute("role") === "article" &&
+      el.getAttribute("data-testid") === "tweet"
+    ) {
+      const tweetTextEl = el.querySelector('[data-testid="tweetText"]')
+      if (tweetTextEl) {
+        return (tweetTextEl as HTMLElement).innerText.trim()
+      }
+    }
+    el = el.parentElement
   }
-
-  return tweetText
+  // Fallback: try previous siblings
+  el = inputElement.previousElementSibling
+  while (el) {
+    if (
+      el.getAttribute("role") === "article" &&
+      el.getAttribute("data-testid") === "tweet"
+    ) {
+      const tweetTextEl = el.querySelector('[data-testid="tweetText"]')
+      if (tweetTextEl) {
+        return (tweetTextEl as HTMLElement).innerText.trim()
+      }
+    }
+    el = el.previousElementSibling
+  }
+  return null
 }
