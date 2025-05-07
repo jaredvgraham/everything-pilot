@@ -17,7 +17,7 @@ export const createUser = async (user: IUser) => {
 
   await client.users.updateUser(newUser.clerkId, {
     publicMetadata: {
-      plan: "free",
+      plan: "none",
     },
   });
 

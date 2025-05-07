@@ -43,8 +43,10 @@ export const Home = () => {
                 fontSize: "14px",
                 lineHeight: "1.5"
               }}>
-              Your AI assistant is ready to help you write better content across
-              the web.
+              {user?.publicMetadata.plan === "none"
+                ? ` Your AI assistant is unavailable. Please upgrade to a paid plan to use it.`
+                : ` Your AI assistant is ready to help you write better content across
+              the web.`}
             </p>
           </div>
 
@@ -80,7 +82,7 @@ export const Home = () => {
                   color: "#4b5563",
                   textAlign: "left"
                 }}>
-                ✨ New Suggestion
+                ✨ Upgrade
               </button>
               <Link to="/settings" style={{ textDecoration: "none" }}>
                 <button
