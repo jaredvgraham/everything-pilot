@@ -2,11 +2,13 @@ import Stripe from "stripe";
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/app/backend/config/mongo";
 import User from "@/app/backend/models/userModel";
+import { clerkClient } from "@clerk/nextjs/server";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 
 export async function POST(req: NextRequest) {
+  const client = await clerkClient();
   await connectDB();
   const payload = await req.text();
   const sig = req.headers.get("Stripe-Signature") as string;
@@ -27,6 +29,11 @@ export async function POST(req: NextRequest) {
 
       user.subscriptionId = null;
       user.plan = "none";
+      await client.users.updateUser(user.clerkId, {
+        publicMetadata: {
+          plan: "none",
+        },
+      });
 
       await user.save();
     }
@@ -67,6 +74,11 @@ export async function POST(req: NextRequest) {
 
       user.subscriptionId = subId;
       user.plan = productName;
+      await client.users.updateUser(user.clerkId, {
+        publicMetadata: {
+          plan: productName,
+        },
+      });
 
       await user.save();
     }
