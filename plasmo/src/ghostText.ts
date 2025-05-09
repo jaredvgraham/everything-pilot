@@ -64,6 +64,7 @@ export function updateGhostText(
   ghostElement: HTMLSpanElement,
   getElementText: (el: Element) => string
 ) {
+  if (!suggestion) return
   const rect = element.getBoundingClientRect()
   ghostElement.style.position = "absolute"
   ghostElement.style.left = `${rect.left + window.scrollX}px`
@@ -80,6 +81,9 @@ export function updateGhostText(
   ghostElement.style.whiteSpace = "pre-wrap"
   ghostElement.style.display = "block"
   const ghostColor = getContrastingGhostColor(element as HTMLElement)
+
+  const beforeText = getElementText(element)
+  if (!beforeText) return
 
   ghostElement.innerHTML =
     `<span style='opacity:0; user-select:none;'>${escapeHtml(

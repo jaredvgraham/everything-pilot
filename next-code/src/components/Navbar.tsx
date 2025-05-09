@@ -8,7 +8,7 @@ const Navbar = () => {
   const { isSignedIn } = useUser();
 
   const navigation = [
-    { name: "Features", href: "#features" },
+    { name: "Features", href: "/#features" },
     { name: "Pricing", href: "/pricing" },
   ];
 
