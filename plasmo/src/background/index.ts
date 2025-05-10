@@ -10,10 +10,12 @@ if (!publishableKey) {
 
 async function getToken() {
   const clerk = await createClerkClient({
-    publishableKey
+    publishableKey,
+    __experimental_syncHostListener: true
   })
 
   if (!clerk.session) {
+    console.log("No session found")
     return null
   }
 

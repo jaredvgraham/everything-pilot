@@ -1,4 +1,6 @@
 import {
+  ClerkLoaded,
+  ClerkLoading,
   ClerkProvider,
   SignedIn,
   SignedOut,
@@ -33,7 +35,12 @@ export const RootLayout = () => {
             flex: 1,
             overflow: "auto"
           }}>
-          <Outlet />
+          <ClerkLoaded>
+            <Outlet />
+          </ClerkLoaded>
+          <ClerkLoading>
+            <div>loading</div>
+          </ClerkLoading>
         </main>
         <footer
           style={{

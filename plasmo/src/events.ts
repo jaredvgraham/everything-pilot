@@ -171,7 +171,7 @@ export async function handleInput(event: Event) {
         ghostElement = null
       }
     }
-  }, 2000)
+  }, 1000)
 }
 
 export function handleKeyDown(event: Event) {
