@@ -1,0 +1,3 @@
+save the site and the users current text for that site to then learn what they talk about on that site
+if relevent context save it too
+query for the site in completion endpoint extract things they have typed on the site for additnol context

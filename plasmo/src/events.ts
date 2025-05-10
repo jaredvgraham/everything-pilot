@@ -6,70 +6,71 @@ import { createGhostElement, updateGhostText } from "./ghostText"
 let currentSuggestion: string | null = null
 let ghostElement: HTMLSpanElement | null = null
 let debounceTimer: number | null = null
+// TODO: Add sensitive fields to the list
+// const sensitiveFields = new Set([
+//   "password",
+//   "email",
+//   "phone",
+//   "credit card",
+//   "social security number",
+//   "bank account number",
+//   "address",
+//   "name",
+//   "username",
+//   "sign in",
+//   "login",
+//   "logout",
+//   "forgot password",
+//   "reset password",
+//   "change password",
+//   "verify email",
+//   "verify phone",
+//   "verify address",
+//   "verify name",
+//   "verify username",
+//   "verify password",
+//   "log in",
+//   "sign up",
+//   "register"
+// ])
 
-const sensitiveFields = new Set([
-  "password",
-  "email",
-  "phone",
-  "credit card",
-  "social security number",
-  "bank account number",
-  "address",
-  "name",
-  "username",
-  "sign in",
-  "login",
-  "logout",
-  "forgot password",
-  "reset password",
-  "change password",
-  "verify email",
-  "verify phone",
-  "verify address",
-  "verify name",
-  "verify username",
-  "verify password",
-  "log in",
-  "sign up",
-  "register"
-])
+// TODO: Add sensitive field check
+// function isSensitiveField(
+//   element: HTMLInputElement | HTMLTextAreaElement | HTMLElement
+// ): boolean {
+//   if (element instanceof HTMLInputElement) {
+//     // Check for password fields
+//     if (element.type === "password") {
+//       return true
+//     }
 
-function isSensitiveField(
-  element: HTMLInputElement | HTMLTextAreaElement | HTMLElement
-): boolean {
-  if (element instanceof HTMLInputElement) {
-    // Check for password fields
-    if (element.type === "password") {
-      return true
-    }
+//     // Check for credit card fields
+//     const creditCardPatterns = [
+//       /credit.*card/i,
+//       /cc[-_]?num/i,
+//       /card[-_]?num/i,
+//       /card[-_]?number/i,
+//       /cc[-_]?number/i,
+//       /cc[-_]?code/i,
+//       /cvv/i,
+//       /cvc/i,
+//       /security[-_]?code/i
+//     ]
 
-    // Check for credit card fields
-    const creditCardPatterns = [
-      /credit.*card/i,
-      /cc[-_]?num/i,
-      /card[-_]?num/i,
-      /card[-_]?number/i,
-      /cc[-_]?number/i,
-      /cc[-_]?code/i,
-      /cvv/i,
-      /cvc/i,
-      /security[-_]?code/i
-    ]
+//     const fieldName = element.name?.toLowerCase() || ""
+//     const fieldId = element.id?.toLowerCase() || ""
+//     const fieldPlaceholder = element.placeholder?.toLowerCase() || ""
 
-    const fieldName = element.name?.toLowerCase() || ""
-    const fieldId = element.id?.toLowerCase() || ""
-    const fieldPlaceholder = element.placeholder?.toLowerCase() || ""
+//     return creditCardPatterns.some(
+//       (pattern) =>
+//         pattern.test(fieldName) ||
+//         pattern.test(fieldId) ||
+//         pattern.test(fieldPlaceholder)
+//     )
+//   }
 
-    return creditCardPatterns.some(
-      (pattern) =>
-        pattern.test(fieldName) ||
-        pattern.test(fieldId) ||
-        pattern.test(fieldPlaceholder)
-    )
-  }
-
-  return false
-}
+//   return false
+// }
 
 export async function handleInput(event: Event) {
   const element = event.target as
@@ -78,10 +79,6 @@ export async function handleInput(event: Event) {
     | HTMLElement
 
   // Check if this is a sensitive field
-  if (isSensitiveField(element)) {
-    console.log("[AI Autocomplete] Skipping suggestions for sensitive field")
-    return
-  }
 
   const text = getElementText(element)
 
@@ -127,10 +124,10 @@ export async function handleInput(event: Event) {
     console.log("context length:", context.length)
 
     // Check if any sensitive field is in the context
-    if ([...sensitiveFields].some((field) => context.includes(field))) {
-      console.log("[AI Autocomplete] Skipping suggestions for sensitive field")
-      return
-    }
+    // if ([...sensitiveFields].some((field) => context.includes(field))) {
+    //   console.log("[AI Autocomplete] Skipping suggestions for sensitive field")
+    //   return
+    // }
 
     const limitContext = context.slice(0, 4000)
     console.log("limit context length:", limitContext.length)

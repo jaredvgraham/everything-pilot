@@ -30,54 +30,12 @@ export async function POST(req: NextRequest) {
     // --- MEMORY MODELS: Use mongo services to find or create relevant memory docs ---
     const siteDoc = await findOrCreateSite(site);
     const userMemory = await findOrCreateUserMemory(userId);
-    const siteMemory = await findOrCreateSiteMemory(siteDoc._id);
+    const siteMemory = await findOrCreateSiteMemory(userId, siteDoc._id);
     const userSiteContext = await findOrCreateUserSiteContext(
       userId,
       siteDoc._id
     );
     // --- END MEMORY MODELS SETUP ---
-
-    // --- GEMINI FACT EXTRACTION ---
-    const facts = await extractRelevantFacts({ input, context, site });
-    // facts: { userMemory: string[], siteMemory: string[], userSiteContext: string[] }
-
-    // UserMemory: add only relevant facts
-    let userMemoryUpdated = false;
-    for (const fact of facts.userMemory) {
-      if (fact && !userMemory.facts.includes(fact)) {
-        userMemory.facts.push(fact);
-        userMemoryUpdated = true;
-      }
-    }
-    if (userMemoryUpdated) {
-      userMemory.lastUpdated = new Date();
-      await userMemory.save();
-    }
-    // SiteMemory: add only relevant facts
-    let siteMemoryUpdated = false;
-    for (const fact of facts.siteMemory) {
-      if (fact && !siteMemory.facts.includes(fact)) {
-        siteMemory.facts.push(fact);
-        siteMemoryUpdated = true;
-      }
-    }
-    if (siteMemoryUpdated) {
-      siteMemory.lastUpdated = new Date();
-      await siteMemory.save();
-    }
-    // UserSiteContext: add only relevant facts
-    let userSiteContextUpdated = false;
-    for (const fact of facts.userSiteContext) {
-      if (fact && !userSiteContext.facts.includes(fact)) {
-        userSiteContext.facts.push(fact);
-        userSiteContextUpdated = true;
-      }
-    }
-    if (userSiteContextUpdated) {
-      userSiteContext.lastUpdated = new Date();
-      await userSiteContext.save();
-    }
-    // --- END GEMINI FACT EXTRACTION ---
 
     const systemPrompt = `
     You are an autocomplete AI. Your ONLY job is to continue the user's text as naturally as possible, as if you are typing the next words for them.
@@ -148,11 +106,62 @@ export async function POST(req: NextRequest) {
     console.log("token input", completion.usage?.prompt_tokens);
     console.log("token output", completion.usage?.completion_tokens);
     console.log("suggestion", suggestion);
-
-    return NextResponse.json(
+    // Send response immediately
+    const response = NextResponse.json(
       { suggestion },
       { headers: { "Access-Control-Allow-Origin": "*" } }
     );
+
+    // --- FACT EXTRACTION & MEMORY UPDATES: Run in background ---
+    (async () => {
+      const facts = await extractRelevantFacts({
+        input,
+        context,
+        site,
+        userMemory: userMemory.facts,
+        siteMemory: siteMemory.facts,
+        userSiteContext: userSiteContext.facts,
+      });
+
+      // UserMemory: add only relevant facts
+      let userMemoryUpdated = false;
+      for (const fact of facts.userMemory) {
+        if (fact && !userMemory.facts.includes(fact)) {
+          userMemory.facts.push(fact);
+          userMemoryUpdated = true;
+        }
+      }
+      if (userMemoryUpdated) {
+        userMemory.lastUpdated = new Date();
+        await userMemory.save();
+      }
+      // SiteMemory: add only relevant facts
+      let siteMemoryUpdated = false;
+      for (const fact of facts.siteMemory) {
+        if (fact && !siteMemory.facts.includes(fact)) {
+          siteMemory.facts.push(fact);
+          siteMemoryUpdated = true;
+        }
+      }
+      if (siteMemoryUpdated) {
+        siteMemory.lastUpdated = new Date();
+        await siteMemory.save();
+      }
+      // UserSiteContext: add only relevant facts
+      let userSiteContextUpdated = false;
+      for (const fact of facts.userSiteContext) {
+        if (fact && !userSiteContext.facts.includes(fact)) {
+          userSiteContext.facts.push(fact);
+          userSiteContextUpdated = true;
+        }
+      }
+      if (userSiteContextUpdated) {
+        userSiteContext.lastUpdated = new Date();
+        await userSiteContext.save();
+      }
+    })();
+
+    return response;
   } catch (error) {
     console.error("❌ Token verification failed:", error);
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
