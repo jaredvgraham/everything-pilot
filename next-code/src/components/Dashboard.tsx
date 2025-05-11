@@ -1,5 +1,13 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import { format } from "date-fns";
+import {
+  UserCircleIcon,
+  ChartBarIcon,
+  ClipboardDocumentListIcon,
+  ServerStackIcon,
+  TrashIcon,
+} from "@heroicons/react/24/outline";
 
 export interface UserMemory {
   facts: string[];
@@ -22,10 +30,14 @@ interface DashboardData {
 
 const MONTHLY_LIMIT = 1000;
 
+const AVATAR_URL =
+  "https://ui-avatars.com/api/?name=User&background=cyan&color=fff&size=128";
+
 const Dashboard: React.FC = () => {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -45,6 +57,119 @@ const Dashboard: React.FC = () => {
     fetchData();
   }, []);
 
+  const handleDeleteUserFact = async (fact: string) => {
+    setDeleting(`user-fact-${fact}`);
+    try {
+      const res = await fetch(`/api/dashboard`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fact }),
+      });
+      if (!res.ok) throw new Error("Failed to delete fact");
+      const json = await res.json();
+      setData((prev) =>
+        prev
+          ? {
+              ...prev,
+              userMemory: {
+                ...prev.userMemory,
+                facts: json.facts,
+                lastUpdated: json.lastUpdated,
+              },
+            }
+          : prev
+      );
+    } catch (err) {
+      setError("Failed to delete user fact");
+    } finally {
+      setDeleting(null);
+    }
+  };
+
+  const handleClearAllUserFacts = async () => {
+    setDeleting("user-clear-all");
+    try {
+      const res = await fetch("/api/dashboard/user-memory", {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error("Failed to clear all facts");
+      const json = await res.json();
+      setData((prev) =>
+        prev
+          ? {
+              ...prev,
+              userMemory: {
+                ...prev.userMemory,
+                facts: json.facts,
+                lastUpdated: json.lastUpdated,
+              },
+            }
+          : prev
+      );
+    } catch (err) {
+      setError("Failed to clear all user facts");
+    } finally {
+      setDeleting(null);
+    }
+  };
+
+  const handleDeleteSiteFact = async (siteId: string, fact: string) => {
+    setDeleting(`site-fact-${siteId}-${fact}`);
+    try {
+      const res = await fetch(`/api/dashboard/site-memory/${siteId}/fact`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fact }),
+      });
+      if (!res.ok) throw new Error("Failed to delete site fact");
+      const json = await res.json();
+      setData((prev) =>
+        prev
+          ? {
+              ...prev,
+              siteMemories: prev.siteMemories.map((site) =>
+                site.siteId === siteId
+                  ? {
+                      ...site,
+                      facts: json.facts,
+                      lastUpdated: json.lastUpdated,
+                    }
+                  : site
+              ),
+            }
+          : prev
+      );
+    } catch (err) {
+      setError("Failed to delete site fact");
+    } finally {
+      setDeleting(null);
+    }
+  };
+
+  const handleDeleteSiteMemory = async (siteId: string) => {
+    setDeleting(`site-memory-${siteId}`);
+    try {
+      const res = await fetch(`/api/dashboard/site-memory/${siteId}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error("Failed to delete site memory");
+      setData((prev) =>
+        prev
+          ? {
+              ...prev,
+              siteMemories: prev.siteMemories.filter(
+                (site) => site.siteId !== siteId
+              ),
+            }
+          : prev
+      );
+    } catch (err) {
+      setError("Failed to delete site memory");
+    } finally {
+      setDeleting(null);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[300px]">
@@ -62,33 +187,48 @@ const Dashboard: React.FC = () => {
   const overLimit = monthlyCompletions > MONTHLY_LIMIT;
 
   return (
-    <div className="max-w-4xl mx-auto py-12 px-4">
-      <h1 className="text-3xl font-bold mb-8 text-gray-900">Your Dashboard</h1>
+    <div className="max-w-6xl mx-auto py-24 px-2 md:px-8">
+      {/* Modern Header */}
+      <div className="flex flex-col md:flex-row items-center justify-between mb-10 bg-gradient-to-r from-cyan-50 to-blue-50 rounded-3xl p-8 shadow-lg relative overflow-hidden">
+        <div>
+          <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-2">
+            Welcome back, <span className="text-cyan-600">User</span>!
+          </h1>
+          <p className="text-lg text-gray-500">
+            Here's your productivity dashboard for this month.
+          </p>
+        </div>
+        <img
+          src={AVATAR_URL}
+          alt="User Avatar"
+          className="w-24 h-24 rounded-full border-4 border-cyan-200 shadow-lg mt-6 md:mt-0"
+        />
+        <div className="absolute right-0 top-0 opacity-10 text-cyan-200 pointer-events-none select-none">
+          <ChartBarIcon className="w-40 h-40" />
+        </div>
+      </div>
 
-      {/* Monthly Suggestions Progress Bar */}
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-2 text-gray-900">
-          Monthly Suggestions
-        </h2>
-        <div className="bg-white rounded-xl shadow p-6">
-          <div className="flex items-center justify-between mb-2">
-            <span
-              className={`text-lg font-semibold ${
-                overLimit ? "text-red-600" : "text-cyan-600"
-              }`}
-            >
-              {monthlyCompletions.toLocaleString()} /{" "}
-              {MONTHLY_LIMIT.toLocaleString()} suggestions this month
+      {/* Stat Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+        {/* Monthly Suggestions */}
+        <div className="bg-white rounded-2xl shadow-xl p-6 flex flex-col gap-3 hover:shadow-2xl transition-shadow group relative overflow-hidden">
+          <div className="flex items-center gap-3">
+            <ChartBarIcon className="w-8 h-8 text-cyan-500 group-hover:scale-110 transition-transform" />
+            <span className="text-lg font-semibold text-gray-900">
+              Monthly Suggestions
             </span>
-            {overLimit && (
-              <span className="text-xs text-red-600 font-bold ml-2">
-                Limit Exceeded
-              </span>
-            )}
           </div>
-          <div className="w-full h-4 bg-gray-200 rounded-full overflow-hidden">
+          <span
+            className={`text-2xl font-bold ${
+              overLimit ? "text-red-600" : "text-cyan-600"
+            }`}
+          >
+            {monthlyCompletions.toLocaleString()} /{" "}
+            {MONTHLY_LIMIT.toLocaleString()}
+          </span>
+          <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden">
             <div
-              className={`h-4 rounded-full transition-all duration-500 ${
+              className={`h-3 rounded-full transition-all duration-700 ${
                 overLimit
                   ? "bg-red-500"
                   : "bg-gradient-to-r from-cyan-400 to-cyan-500"
@@ -96,98 +236,151 @@ const Dashboard: React.FC = () => {
               style={{ width: percent + "%" }}
             ></div>
           </div>
+          {overLimit && (
+            <span className="text-xs text-red-600 font-bold mt-2">
+              Limit Exceeded
+            </span>
+          )}
         </div>
-      </section>
-
-      {/* Request Usage */}
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-2 text-gray-900">Usage</h2>
-        <div className="bg-white rounded-xl shadow p-6 flex items-center">
-          <span className="text-3xl font-bold text-cyan-600 mr-2">
+        {/* Usage */}
+        <div className="bg-white rounded-2xl shadow-xl p-6 flex flex-col gap-3 hover:shadow-2xl transition-shadow group relative overflow-hidden">
+          <div className="flex items-center gap-3">
+            <ClipboardDocumentListIcon className="w-8 h-8 text-cyan-500 group-hover:scale-110 transition-transform" />
+            <span className="text-lg font-semibold text-gray-900">Usage</span>
+          </div>
+          <span className="text-2xl font-bold text-cyan-600">
             {requestCount}
           </span>
-          <span className="text-lg text-gray-700">requests made</span>
+          <span className="text-gray-500">requests made</span>
         </div>
-      </section>
-
-      {/* User Memory */}
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-2 text-gray-900">
-          Your Memory
-        </h2>
-        <div className="bg-white rounded-xl shadow p-6">
-          <div className="text-sm text-gray-500 mb-2">
-            Last updated: {new Date(userMemory.lastUpdated).toLocaleString()}
+        {/* User Memory Count */}
+        <div className="bg-white rounded-2xl shadow-xl p-6 flex flex-col gap-3 hover:shadow-2xl transition-shadow group relative overflow-hidden">
+          <div className="flex items-center gap-3">
+            <ServerStackIcon className="w-8 h-8 text-cyan-500 group-hover:scale-110 transition-transform" />
+            <span className="text-lg font-semibold text-gray-900">
+              Your Memory
+            </span>
           </div>
-          <ul>
+          <span className="text-2xl font-bold text-cyan-600">
+            {userMemory.facts.length}
+          </span>
+          <span className="text-gray-500">facts stored</span>
+        </div>
+      </div>
+
+      {/* Memory Sections */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+        {/* User Memory */}
+        <section className="bg-white rounded-2xl shadow-xl p-6 flex flex-col gap-2 hover:shadow-2xl transition-shadow">
+          <div className="flex items-center gap-2 mb-2">
+            <UserCircleIcon className="w-6 h-6 text-cyan-400" />
+            <h2 className="text-xl font-bold text-gray-900">Your Memory</h2>
+          </div>
+          <div className="text-xs text-gray-500 mb-2">
+            Last updated:{" "}
+            {format(
+              new Date(userMemory.lastUpdated),
+              "EEE, MMM d, yyyy h:mm a"
+            )}
+          </div>
+          <ul className="divide-y divide-gray-100">
             {userMemory.facts.length === 0 ? (
-              <li className="text-gray-400 italic">No facts stored.</li>
+              <li className="text-gray-400 italic py-4">No facts stored.</li>
             ) : (
               userMemory.facts.map((fact, i) => (
                 <li
                   key={i}
-                  className="flex justify-between items-center border-b last:border-b-0 py-2"
+                  className="flex justify-between items-center py-3 group"
                 >
-                  <span>{fact}</span>
-                  <button className="text-red-500 hover:underline text-xs">
-                    Delete
+                  <span className="text-gray-700">{fact}</span>
+                  <button
+                    className="p-1 rounded-full hover:bg-red-50 transition-colors"
+                    title="Delete fact"
+                    onClick={() => handleDeleteUserFact(fact)}
+                  >
+                    <TrashIcon className="w-4 h-4 text-red-400 hover:text-red-600" />
                   </button>
                 </li>
               ))
             )}
           </ul>
           {userMemory.facts.length > 0 && (
-            <button className="mt-4 text-sm text-red-600 hover:underline">
+            <button
+              className="mt-4 text-sm text-red-600 hover:underline font-semibold self-end"
+              title="Clear all facts"
+              onClick={handleClearAllUserFacts}
+            >
               Clear All
             </button>
           )}
-        </div>
-      </section>
+        </section>
 
-      {/* Site Memories */}
-      <section>
-        <h2 className="text-xl font-semibold mb-2 text-gray-900">
-          Site Memories
-        </h2>
-        {siteMemories.length === 0 ? (
-          <div className="bg-white rounded-xl shadow p-6 text-gray-400 italic">
-            No site memories stored.
+        {/* Site Memories */}
+        <section className="bg-white rounded-2xl shadow-xl p-6 flex flex-col gap-4 hover:shadow-2xl transition-shadow">
+          <div className="flex items-center gap-2 mb-2">
+            <ServerStackIcon className="w-6 h-6 text-cyan-400" />
+            <h2 className="text-xl font-bold text-gray-900">Site Memories</h2>
           </div>
-        ) : (
-          siteMemories.map((site) => (
-            <div
-              key={site.siteId}
-              className="bg-white rounded-xl shadow p-6 mb-6"
-            >
-              <div className="font-bold text-cyan-600 mb-1">
-                {site.siteName || site.siteId}
-              </div>
-              <div className="text-xs text-gray-500 mb-2">
-                Last updated: {new Date(site.lastUpdated).toLocaleString()}
-              </div>
-              <ul>
-                {site.facts.length === 0 ? (
-                  <li className="text-gray-400 italic">
-                    No facts stored for this site.
-                  </li>
-                ) : (
-                  site.facts.map((fact, i) => (
-                    <li
-                      key={i}
-                      className="flex justify-between items-center border-b last:border-b-0 py-2"
-                    >
-                      <span>{fact}</span>
-                      <button className="text-red-500 hover:underline text-xs">
-                        Delete
-                      </button>
-                    </li>
-                  ))
-                )}
-              </ul>
+          {siteMemories.length === 0 ? (
+            <div className="text-gray-400 italic py-4">
+              No site memories stored.
             </div>
-          ))
-        )}
-      </section>
+          ) : (
+            <div className="flex flex-col gap-4 max-h-96 overflow-y-auto pr-2">
+              {siteMemories.map((site) => (
+                <div
+                  key={site.siteId}
+                  className="bg-gradient-to-r from-cyan-50 to-blue-50 rounded-xl p-4 shadow group hover:scale-[1.02] transition-transform relative"
+                >
+                  <button
+                    className="absolute top-3 right-3 p-1 rounded-full hover:bg-red-50 transition-colors"
+                    title="Delete site memory"
+                    onClick={() => handleDeleteSiteMemory(site.siteId)}
+                  >
+                    <TrashIcon className="w-5 h-5 text-red-400 hover:text-red-600" />
+                  </button>
+                  <div className="font-bold text-cyan-700 mb-1 flex items-center gap-2">
+                    <ServerStackIcon className="w-5 h-5 text-cyan-400" />
+                    {site.siteName || site.siteId}
+                  </div>
+                  <div className="text-xs text-gray-500 mb-2">
+                    Last updated:{" "}
+                    {format(
+                      new Date(site.lastUpdated),
+                      "EEE, MMM d, yyyy h:mm a"
+                    )}
+                  </div>
+                  <ul className="divide-y divide-gray-100">
+                    {site.facts.length === 0 ? (
+                      <li className="text-gray-400 italic py-2">
+                        No facts stored for this site.
+                      </li>
+                    ) : (
+                      site.facts.map((fact, i) => (
+                        <li
+                          key={i}
+                          className="flex justify-between items-center py-2 group"
+                        >
+                          <span className="text-gray-700">{fact}</span>
+                          <button
+                            className="p-1 rounded-full hover:bg-red-50 transition-colors"
+                            title="Delete fact"
+                            onClick={() =>
+                              handleDeleteSiteFact(site.siteId, fact)
+                            }
+                          >
+                            <TrashIcon className="w-4 h-4 text-red-400 hover:text-red-600" />
+                          </button>
+                        </li>
+                      ))
+                    )}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+      </div>
     </div>
   );
 };

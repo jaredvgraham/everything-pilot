@@ -39,15 +39,6 @@ export async function GET(req: NextRequest) {
       lastUpdated: sm.lastUpdated,
     }));
 
-    // Count total completions from all session memories
-    const sessionMemories = await SessionMemory.find({ userId });
-    let requestCount = 0;
-    sessionMemories.forEach((session) => {
-      requestCount += Array.isArray(session.recentCompletions)
-        ? session.recentCompletions.length
-        : 0;
-    });
-
     // Count completions in the last month using Suggestion model
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -57,8 +48,10 @@ export async function GET(req: NextRequest) {
       createdAt: { $gte: startOfMonth, $lt: endOfMonth },
     });
 
+    const totalRequests = await Suggestion.countDocuments({ userId });
+
     return NextResponse.json({
-      requestCount,
+      requestCount: totalRequests,
       userMemory,
       siteMemories,
       monthlyCompletions,
@@ -70,4 +63,30 @@ export async function GET(req: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+// DELETE a single user memory fact
+export async function DELETE(req: NextRequest) {
+  const { userId } = await auth();
+  if (!userId)
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  let fact;
+  try {
+    const body = await req.json();
+    fact = body.fact;
+  } catch {
+    return NextResponse.json({ error: "Missing fact" }, { status: 400 });
+  }
+  if (!fact)
+    return NextResponse.json({ error: "Missing fact" }, { status: 400 });
+  const userMemory = await UserMemory.findOne({ userId });
+  if (!userMemory)
+    return NextResponse.json({ error: "No user memory" }, { status: 404 });
+  userMemory.facts = userMemory.facts.filter((f: string) => f !== fact);
+  userMemory.lastUpdated = new Date();
+  await userMemory.save();
+  return NextResponse.json({
+    facts: userMemory.facts,
+    lastUpdated: userMemory.lastUpdated,
+  });
 }
