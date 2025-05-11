@@ -8,6 +8,7 @@ import {
   ServerStackIcon,
   TrashIcon,
 } from "@heroicons/react/24/outline";
+import { useUser } from "@clerk/nextjs";
 
 export interface UserMemory {
   facts: string[];
@@ -28,8 +29,6 @@ interface DashboardData {
   monthlyCompletions: number;
 }
 
-const MONTHLY_LIMIT = 1000;
-
 const AVATAR_URL =
   "https://ui-avatars.com/api/?name=User&background=cyan&color=fff&size=128";
 
@@ -38,6 +37,9 @@ const Dashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const { user } = useUser();
+
+  const MONTHLY_LIMIT = user?.publicMetadata.plan === "basic" ? 1000 : 5000;
 
   useEffect(() => {
     const fetchData = async () => {

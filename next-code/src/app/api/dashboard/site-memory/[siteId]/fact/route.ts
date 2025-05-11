@@ -2,14 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import SiteMemory from "@/app/backend/models/siteMemoryModel";
 import { auth } from "@clerk/nextjs/server";
 
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: { siteId: string } }
-) {
+export async function DELETE(req: NextRequest) {
   const { userId } = await auth();
   if (!userId)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  const { siteId } = params;
+  // Parse siteId from the URL pathname
+  const { pathname } = new URL(req.url);
+  const match = pathname.match(/site-memory\/([^/]+)\/fact/);
+  const siteId = match ? match[1] : null;
   let fact;
   try {
     const body = await req.json();
