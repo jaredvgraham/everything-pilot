@@ -6,14 +6,12 @@ export async function extractRelevantFacts({
   site,
   userMemory,
   siteMemory,
-  userSiteContext,
 }: {
   input: string;
   context: string;
   site: string;
   userMemory: string[];
   siteMemory: string[];
-  userSiteContext: string[];
 }) {
   const prompt = `
   Analyze the following user input, context, and site. 
@@ -22,12 +20,10 @@ export async function extractRelevantFacts({
   Known facts we already know:
   - userMemory: ${userMemory.join(", ")}
   - siteMemory: ${siteMemory.join(", ")}
-  - userSiteContext: ${userSiteContext.join(", ")}
   
   - userMemory: actionable, persistent facts about the user (e.g., interests, skills, professional background, communication style, habits, frequently discussed topics)
   - siteMemory: actionable, persistent facts about what the user is using the site or app for (e.g., their ongoing purpose, intent, or focus on this site/app)
-  - userSiteContext: actionable, persistent facts about what the user has done or is doing on this site/app (e.g., specific actions, interactions, or history)
-  
+ 
   Guidelines:
   - Each fact should be a concise phrase, maximum 4 words.
   - Generalize facts to be broadly useful and not overly specific to a single event or message.
@@ -43,21 +39,17 @@ export async function extractRelevantFacts({
   - Do not repeat the same fact in multiple categories.
   
   Negative examples (do not do this):
-  - siteMemory: ["engaging with posts on developer tools"] (should be "developer tools" or "opinions on developer tools")
-  - userSiteContext: ["responded to the post with 'thats interesting ive been using cursor'"] (should be "shares Cursor experience" or "responds to criticism")
-  - userSiteContext: ["currently browsing X"] (Never include this)
   - Any fact longer than 4 words
   
   Positive examples:
   - siteMemory: ["developer tools", "AI tool opinions", "job searching"]
   - userMemory: ["software developer", "AI tool user", "enjoys spicy food"]
-  - userSiteContext: ["shares Cursor experience", "building a social media app", "shares vegan recipes"]
-
+ 
   NEVER include:
   - Facts in your response that are already known to us.
   - Only include additional facts that are not already known to us we will append to the existing facts.
   
-  Examples:
+  Here is the user input, context, and site:
   ...
   User input: "${input}"
   Context: "${context}"
@@ -81,7 +73,7 @@ export async function extractRelevantFacts({
   // Try to extract the JSON from the response
   const jsonStart = raw.indexOf("{");
   const jsonEnd = raw.lastIndexOf("}");
-  let facts = { userMemory: [], siteMemory: [], userSiteContext: [] };
+  let facts = { userMemory: [], siteMemory: [] };
   if (jsonStart !== -1 && jsonEnd !== -1) {
     try {
       facts = JSON.parse(raw.slice(jsonStart, jsonEnd + 1));

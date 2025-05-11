@@ -6,6 +6,8 @@ import { findOrCreateUserMemory } from "@/app/backend/services/mongo/userMemory"
 import { findOrCreateSiteMemory } from "@/app/backend/services/mongo/siteMemory";
 import { findOrCreateUserSiteContext } from "@/app/backend/services/mongo/userSiteContext";
 import { extractRelevantFacts } from "@/app/backend/services/gemini/factExtractor";
+import { connectDB } from "@/app/backend/config/mongo";
+import Suggestion from "@/app/backend/models/suggestionModel";
 
 // Handle preflight (OPTIONS) requests
 export async function OPTIONS() {
@@ -22,6 +24,7 @@ export async function OPTIONS() {
 export async function POST(req: NextRequest) {
   try {
     const { userId } = await auth();
+    await connectDB();
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -31,10 +34,7 @@ export async function POST(req: NextRequest) {
     const siteDoc = await findOrCreateSite(site);
     const userMemory = await findOrCreateUserMemory(userId);
     const siteMemory = await findOrCreateSiteMemory(userId, siteDoc._id);
-    const userSiteContext = await findOrCreateUserSiteContext(
-      userId,
-      siteDoc._id
-    );
+
     // --- END MEMORY MODELS SETUP ---
 
     const systemPrompt = `
@@ -69,7 +69,13 @@ export async function POST(req: NextRequest) {
     The user is currently on the following website:
     ${site}
     
-    Context of the website and what the user is possibly referring to in their text:
+    Persistent user memory:
+    ${userMemory.facts.length ? userMemory.facts.join(", ") : "None"}
+
+    Persistent site memory:
+    ${siteMemory.facts.length ? siteMemory.facts.join(", ") : "None"}
+
+    Context of the website and what the user is possibly referring to in their current text:
     ${context}
     
     User is currently typing:
@@ -106,6 +112,19 @@ export async function POST(req: NextRequest) {
     console.log("token input", completion.usage?.prompt_tokens);
     console.log("token output", completion.usage?.completion_tokens);
     console.log("suggestion", suggestion);
+
+    // Log the suggestion in the database
+    try {
+      await Suggestion.create({
+        userId,
+        siteId: siteDoc._id,
+        input,
+        output: suggestion,
+      });
+    } catch (e) {
+      console.error("Failed to log suggestion:", e);
+    }
+
     // Send response immediately
     const response = NextResponse.json(
       { suggestion },
@@ -120,7 +139,6 @@ export async function POST(req: NextRequest) {
         site,
         userMemory: userMemory.facts,
         siteMemory: siteMemory.facts,
-        userSiteContext: userSiteContext.facts,
       });
 
       // UserMemory: add only relevant facts
@@ -146,18 +164,6 @@ export async function POST(req: NextRequest) {
       if (siteMemoryUpdated) {
         siteMemory.lastUpdated = new Date();
         await siteMemory.save();
-      }
-      // UserSiteContext: add only relevant facts
-      let userSiteContextUpdated = false;
-      for (const fact of facts.userSiteContext) {
-        if (fact && !userSiteContext.facts.includes(fact)) {
-          userSiteContext.facts.push(fact);
-          userSiteContextUpdated = true;
-        }
-      }
-      if (userSiteContextUpdated) {
-        userSiteContext.lastUpdated = new Date();
-        await userSiteContext.save();
       }
     })();
 

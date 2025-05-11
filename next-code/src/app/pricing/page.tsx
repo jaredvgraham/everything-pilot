@@ -57,36 +57,39 @@ export default function PricingPage() {
   };
 
   return (
-    <div className="bg-gradient-to-b from-indigo-50 via-white to-purple-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="bg-gradient-to-b from-gray-50 to-white py-18 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <div className="text-center">
-          <h1 className="text-4xl font-extrabold text-gray-900 sm:text-5xl sm:tracking-tight lg:text-6xl">
-            Simple, transparent pricing
+          <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
+            Simple, transparent{" "}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-cyan-500">
+              pricing
+            </span>
           </h1>
           <p className="mt-5 max-w-xl mx-auto text-xl text-gray-600">
             Choose the plan that fits your needs. Cancel anytime.
           </p>
         </div>
 
-        <div className="mt-12 space-y-4 sm:mt-16 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-6 lg:max-w-4xl lg:mx-auto px-4">
+        <div className="mt-12 space-y-4 sm:mt-16 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-8 lg:max-w-4xl lg:mx-auto px-4">
           {plans.map((plan) => (
             <div
               key={plan.planKey}
-              className={`rounded-lg shadow-lg divide-y divide-gray-200 bg-white ${
+              className={`rounded-2xl shadow-xl divide-y divide-gray-100 bg-white ${
                 plan.planKey === "pro"
-                  ? "border-2 border-indigo-500 relative"
+                  ? "border-2 border-cyan-500 relative"
                   : "border border-gray-200"
               }`}
             >
               {plan.planKey === "pro" && (
                 <div className="absolute top-0 right-5 -translate-y-1/2 translate-x-1/2 ">
-                  <span className="inline-flex rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 px-4 py-1 text-sm font-semibold text-white">
+                  <span className="inline-flex rounded-full bg-gradient-to-r from-cyan-400 to-cyan-500 px-4 py-1 text-sm font-semibold text-white shadow">
                     Popular
                   </span>
                 </div>
               )}
               <div className="p-6">
-                <h2 className="text-2xl font-semibold text-gray-900">
+                <h2 className="text-2xl font-bold text-gray-900">
                   {plan.name}
                 </h2>
                 <p className="mt-8">
@@ -100,10 +103,10 @@ export default function PricingPage() {
                 <button
                   onClick={() => handleSubscribe(plan.planKey)}
                   disabled={loading === plan.planKey}
-                  className={`mt-8 block w-full rounded-lg border border-transparent px-6 py-3 text-center text-base font-medium text-white ${
+                  className={`mt-8 block w-full rounded-lg border border-transparent px-6 py-3 text-center text-base font-semibold uppercase tracking-wide text-white ${
                     plan.planKey === "pro"
-                      ? "bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"
-                      : "bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800"
+                      ? "bg-gradient-to-r from-cyan-400 to-cyan-500 hover:from-cyan-600 hover:to-blue-600"
+                      : "bg-gradient-to-r from-gray-400 to-gray-500 hover:from-gray-500 hover:to-gray-600"
                   } transition-all shadow-lg hover:shadow-xl`}
                 >
                   {loading === plan.planKey
@@ -113,8 +116,8 @@ export default function PricingPage() {
                 {plan.planKey === "basic" && (
                   <div className="mt-4 text-center">
                     <p className="text-sm text-gray-600">
-                      <span className="inline-flex items-center text-indigo-600 font-medium">
-                        <ArrowUpIcon className="h-4 w-4 mr-1" />
+                      <span className="inline-flex items-center text-cyan-500 font-semibold">
+                        <ArrowUpIcon className="h-4 w-4 mr-1 text-cyan-500" />
                         Upgrade to Pro anytime
                       </span>
                     </p>
@@ -122,7 +125,7 @@ export default function PricingPage() {
                 )}
               </div>
               <div className="pt-6 pb-8 px-6">
-                <h3 className="text-xs font-medium text-gray-900 tracking-wide uppercase">
+                <h3 className="text-xs font-semibold text-gray-900 tracking-wide uppercase">
                   What's included
                 </h3>
                 <ul className="mt-6 space-y-4">
@@ -130,7 +133,7 @@ export default function PricingPage() {
                     <li key={feature.text} className="flex space-x-3">
                       {feature.available ? (
                         <CheckIcon
-                          className="flex-shrink-0 h-5 w-5 text-indigo-600"
+                          className="flex-shrink-0 h-5 w-5 text-cyan-500"
                           aria-hidden="true"
                         />
                       ) : (
@@ -150,8 +153,8 @@ export default function PricingPage() {
                   ))}
                 </ul>
                 {plan.planKey === "basic" && (
-                  <div className="mt-6 p-4 bg-indigo-50 rounded-lg">
-                    <p className="text-sm text-indigo-700">
+                  <div className="mt-6 p-4 bg-cyan-50 rounded-lg">
+                    <p className="text-sm text-cyan-700">
                       Need more? Upgrade to Pro anytime to unlock unlimited
                       completions and priority support.
                     </p>

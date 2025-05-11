@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { UserButton, useUser } from "@clerk/nextjs";
-
+import Image from "next/image";
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { isSignedIn } = useUser();
@@ -13,17 +13,22 @@ const Navbar = () => {
   ];
 
   return (
-    <nav className="bg-white/80 backdrop-blur-md border-b border-gray-100 fixed w-full z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <nav className="bg-white/20 backdrop-blur-md shadow-md border-b border-gray-50 fixed w-full z-50 ">
+      <div className="mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           {/* Logo */}
-          <div className="flex items-center">
-            <Link href="/" className="flex items-center">
-              <span className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                AIComplete
-              </span>
-            </Link>
-          </div>
+          <Link href="/">
+            <div className="flex items-center h-16">
+              <Image
+                src={"/pilotype-logo-t.png"}
+                alt="Pilotype Logo"
+                width={32}
+                height={32}
+                quality={100}
+                style={{ objectFit: "contain" }}
+              />
+            </div>
+          </Link>
 
           {/* Centered Navigation */}
           <div className="hidden md:flex items-center justify-center flex-1">
@@ -32,7 +37,7 @@ const Navbar = () => {
                 <Link
                   key={item.name}
                   href={item.href}
-                  className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors"
+                  className="text-gray-600 hover:text-cyan-600 px-3 py-2 text-base font-semibold tracking-wide transition-colors"
                 >
                   {item.name}
                 </Link>
@@ -48,13 +53,13 @@ const Navbar = () => {
               <>
                 <Link
                   href="/sign-in"
-                  className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors"
+                  className="text-gray-700 hover:text-cyan-600 px-3 py-2 text-base font-semibold tracking-wide transition-colors"
                 >
                   Sign in
                 </Link>
                 <Link
                   href="/sign-up"
-                  className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-indigo-700 hover:to-purple-700 transition-all shadow-sm hover:shadow"
+                  className="bg-gradient-to-r from-cyan-400 to-cyan-500 text-white px-4 py-2 rounded-lg text-base font-semibold uppercase tracking-wide hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg hover:shadow-xl"
                 >
                   Get Started
                 </Link>
@@ -66,7 +71,7 @@ const Navbar = () => {
           <div className="flex items-center md:hidden">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="inline-flex items-center justify-center p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+              className="inline-flex items-center justify-center p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-cyan-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-cyan-400"
             >
               <span className="sr-only">Open main menu</span>
               {!isMenuOpen ? (
@@ -111,7 +116,7 @@ const Navbar = () => {
               <Link
                 key={item.name}
                 href={item.href}
-                className="text-gray-600 hover:text-gray-900 block px-3 py-2 text-base font-medium"
+                className="text-gray-700 hover:text-cyan-600 block px-3 py-2 text-base font-semibold tracking-wide"
                 onClick={() => setIsMenuOpen(false)}
               >
                 {item.name}
@@ -121,14 +126,14 @@ const Navbar = () => {
               <>
                 <Link
                   href="/sign-in"
-                  className="text-gray-600 hover:text-gray-900 block px-3 py-2 text-base font-medium"
+                  className="text-gray-700 hover:text-cyan-600 block px-3 py-2 text-base font-semibold tracking-wide"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Sign in
                 </Link>
                 <Link
                   href="/sign-up"
-                  className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white block px-3 py-2 text-base font-medium rounded-lg"
+                  className="bg-gradient-to-r from-cyan-400 to-cyan-500 text-white block px-3 py-2 text-base font-semibold uppercase tracking-wide rounded-lg hover:from-cyan-600 hover:to-blue-600 shadow-lg hover:shadow-xl"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Get Started

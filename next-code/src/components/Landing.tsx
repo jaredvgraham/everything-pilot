@@ -65,26 +65,26 @@ const AutocompleteDemo = () => {
 
 const LandingPage = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-indigo-50 via-white to-purple-50">
-      {/* Hero Section */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16 text-center">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white ">
+      {/* Logo and Hero Section */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-16 text-center">
         <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
           Supercharge Your Browsing with
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-cyan-500">
             {" "}
-            AI Autocomplete
+            Pilotype
           </span>
         </h1>
         <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-          Experience the future of web browsing with our intelligent AI-powered
-          autocomplete extension. Save time and boost productivity with smart
-          suggestions that learn from your behavior.
+          Experience the future of web browsing with Pilotype, the intelligent
+          AI-powered autocomplete extension. Save time and boost productivity
+          with smart suggestions that learn from your behavior.
         </p>
         <div className="flex justify-center gap-4">
-          <button className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-3 rounded-lg font-semibold hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl">
+          <button className="bg-gradient-to-r from-cyan-400 to-cyan-500 text-white px-8 py-3 rounded-lg font-semibold hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg hover:shadow-xl">
             Add to Chrome
           </button>
-          <button className="border border-gray-200 text-gray-700 px-8 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-all shadow-sm hover:shadow">
+          <button className="border border-blue-200 text-cyan-600 px-8 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-all shadow-sm hover:shadow">
             Learn More
           </button>
         </div>
@@ -98,9 +98,9 @@ const LandingPage = () => {
       >
         <div className="grid md:grid-cols-3 gap-12">
           <div className="text-center group hover:transform hover:scale-105 transition-all duration-300">
-            <div className="bg-gradient-to-br from-indigo-100 to-purple-100 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:shadow-lg transition-all">
+            <div className="bg-gradient-to-br from-cyan-100 to-blue-100 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:shadow-lg transition-all">
               <svg
-                className="w-8 h-8 text-indigo-600"
+                className="w-8 h-8 text-cyan-600"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -122,9 +122,9 @@ const LandingPage = () => {
             </p>
           </div>
           <div className="text-center group hover:transform hover:scale-105 transition-all duration-300">
-            <div className="bg-gradient-to-br from-indigo-100 to-purple-100 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:shadow-lg transition-all">
+            <div className="bg-gradient-to-br from-cyan-100 to-blue-100 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:shadow-lg transition-all">
               <svg
-                className="w-8 h-8 text-indigo-600"
+                className="w-8 h-8 text-cyan-600"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -146,9 +146,9 @@ const LandingPage = () => {
             </p>
           </div>
           <div className="text-center group hover:transform hover:scale-105 transition-all duration-300">
-            <div className="bg-gradient-to-br from-indigo-100 to-purple-100 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:shadow-lg transition-all">
+            <div className="bg-gradient-to-br from-cyan-100 to-blue-100 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:shadow-lg transition-all">
               <svg
-                className="w-8 h-8 text-indigo-600"
+                className="w-8 h-8 text-cyan-600"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -175,12 +175,12 @@ const LandingPage = () => {
         <PricingPage />
       </div>
       {/* CTA Section */}
-      <div className="bg-gradient-to-r from-indigo-600 to-purple-600 py-20">
+      <div className="bg-gradient-to-r from-cyan-500 to-blue-500 py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl font-bold text-white mb-8">
             Ready to Transform Your Browsing Experience?
           </h2>
-          <button className="bg-white text-indigo-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-all shadow-lg hover:shadow-xl">
+          <button className="bg-white text-cyan-600 px-8 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-all shadow-lg hover:shadow-xl">
             Get Started Now
           </button>
         </div>

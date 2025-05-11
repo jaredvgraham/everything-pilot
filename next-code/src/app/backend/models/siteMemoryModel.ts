@@ -18,6 +18,9 @@ const siteMemorySchema = new Schema({
   lastUpdated: { type: Date, default: Date.now },
 });
 
+// Compound unique index on userId + siteId
+siteMemorySchema.index({ userId: 1, siteId: 1 }, { unique: true });
+
 const SiteMemory =
   models.SiteMemory ||
   model<ISiteMemory & Document>("SiteMemory", siteMemorySchema);
