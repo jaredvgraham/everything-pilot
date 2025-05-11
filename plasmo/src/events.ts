@@ -6,6 +6,8 @@ import { createGhostElement, updateGhostText } from "./ghostText"
 let currentSuggestion: string | null = null
 let ghostElement: HTMLSpanElement | null = null
 let debounceTimer: number | null = null
+let pauseSuggestions = false
+let pauseTimeout: number | null = null
 // TODO: Add sensitive fields to the list
 // const sensitiveFields = new Set([
 //   "password",
@@ -73,6 +75,9 @@ let debounceTimer: number | null = null
 // }
 
 export async function handleInput(event: Event) {
+  if (pauseSuggestions) {
+    return
+  }
   const element = event.target as
     | HTMLInputElement
     | HTMLTextAreaElement
@@ -133,6 +138,7 @@ export async function handleInput(event: Event) {
     console.log("limit context length:", limitContext.length)
 
     try {
+      if (pauseSuggestions) return
       const suggestion = await getSuggestion(text, limitContext)
       if (!suggestion) {
         if (ghostElement) {
@@ -179,6 +185,21 @@ export function handleKeyDown(event: Event) {
     | HTMLInputElement
     | HTMLTextAreaElement
     | HTMLElement
+
+  if (keyboardEvent.key === "Enter" || keyboardEvent.key === "Return") {
+    pauseSuggestions = true
+    if (pauseTimeout) {
+      clearTimeout(pauseTimeout)
+    }
+    pauseTimeout = window.setTimeout(() => {
+      pauseSuggestions = false
+    }, 3500)
+    console.log("[AI Autocomplete] Enter key pressed")
+    if (element instanceof HTMLElement && element.isContentEditable) {
+      element.focus()
+    }
+  }
+
   if (
     (keyboardEvent.key === "Tab" || keyboardEvent.key === "ArrowRight") &&
     currentSuggestion

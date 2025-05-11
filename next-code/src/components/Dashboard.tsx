@@ -9,6 +9,7 @@ import {
   TrashIcon,
 } from "@heroicons/react/24/outline";
 import { useUser } from "@clerk/nextjs";
+import SiteMemoryCard from "./SiteMemoryCard";
 
 export interface UserMemory {
   facts: string[];
@@ -262,11 +263,21 @@ const Dashboard: React.FC = () => {
             <span className="text-lg font-semibold text-gray-900">
               Your Memory
             </span>
+            {userMemory.facts.length >= 100 && (
+              <span className="ml-2 px-2 py-0.5 text-xs font-bold rounded bg-red-100 text-red-700 border border-red-200 animate-pulse">
+                FULL
+              </span>
+            )}
           </div>
           <span className="text-2xl font-bold text-cyan-600">
             {userMemory.facts.length}
           </span>
           <span className="text-gray-500">facts stored</span>
+          {userMemory.facts.length >= 100 && (
+            <span className="text-xs text-red-600 font-semibold mt-1">
+              Your memory is full. Delete some facts to add new ones.
+            </span>
+          )}
         </div>
       </div>
 
@@ -277,6 +288,12 @@ const Dashboard: React.FC = () => {
           <div className="flex items-center gap-2 mb-2">
             <UserCircleIcon className="w-6 h-6 text-cyan-400" />
             <h2 className="text-xl font-bold text-gray-900">Your Memory</h2>
+
+            {userMemory.facts.length >= 100 && (
+              <span className="ml-2 px-2 py-0.5 text-xs font-bold rounded bg-red-100 text-red-700 border border-red-200 animate-pulse">
+                FULL
+              </span>
+            )}
           </div>
           <div className="text-xs text-gray-500 mb-2">
             Last updated:{" "}
@@ -285,6 +302,11 @@ const Dashboard: React.FC = () => {
               "EEE, MMM d, yyyy h:mm a"
             )}
           </div>
+          {userMemory.facts.length >= 100 && (
+            <div className="text-xs text-red-600 font-semibold mb-2">
+              Your user memory is full. Delete facts to make space for new ones.
+            </div>
+          )}
           <ul className="divide-y divide-gray-100">
             {userMemory.facts.length === 0 ? (
               <li className="text-gray-400 italic py-4">No facts stored.</li>
@@ -328,56 +350,14 @@ const Dashboard: React.FC = () => {
               No site memories stored.
             </div>
           ) : (
-            <div className="flex flex-col gap-4 max-h-96 overflow-y-auto pr-2">
+            <div className="flex flex-col gap-4 overflow-y-auto pr-2">
               {siteMemories.map((site) => (
-                <div
+                <SiteMemoryCard
                   key={site.siteId}
-                  className="bg-gradient-to-r from-cyan-50 to-blue-50 rounded-xl p-4 shadow group hover:scale-[1.02] transition-transform relative"
-                >
-                  <button
-                    className="absolute top-3 right-3 p-1 rounded-full hover:bg-red-50 transition-colors"
-                    title="Delete site memory"
-                    onClick={() => handleDeleteSiteMemory(site.siteId)}
-                  >
-                    <TrashIcon className="w-5 h-5 text-red-400 hover:text-red-600" />
-                  </button>
-                  <div className="font-bold text-cyan-700 mb-1 flex items-center gap-2">
-                    <ServerStackIcon className="w-5 h-5 text-cyan-400" />
-                    {site.siteName || site.siteId}
-                  </div>
-                  <div className="text-xs text-gray-500 mb-2">
-                    Last updated:{" "}
-                    {format(
-                      new Date(site.lastUpdated),
-                      "EEE, MMM d, yyyy h:mm a"
-                    )}
-                  </div>
-                  <ul className="divide-y divide-gray-100">
-                    {site.facts.length === 0 ? (
-                      <li className="text-gray-400 italic py-2">
-                        No facts stored for this site.
-                      </li>
-                    ) : (
-                      site.facts.map((fact, i) => (
-                        <li
-                          key={i}
-                          className="flex justify-between items-center py-2 group"
-                        >
-                          <span className="text-gray-700">{fact}</span>
-                          <button
-                            className="p-1 rounded-full hover:bg-red-50 transition-colors"
-                            title="Delete fact"
-                            onClick={() =>
-                              handleDeleteSiteFact(site.siteId, fact)
-                            }
-                          >
-                            <TrashIcon className="w-4 h-4 text-red-400 hover:text-red-600" />
-                          </button>
-                        </li>
-                      ))
-                    )}
-                  </ul>
-                </div>
+                  site={site}
+                  handleDeleteSiteMemory={handleDeleteSiteMemory}
+                  handleDeleteSiteFact={handleDeleteSiteFact}
+                />
               ))}
             </div>
           )}

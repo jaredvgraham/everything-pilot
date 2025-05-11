@@ -5,7 +5,21 @@
 /**
  * Creates a styled ghost text element for overlay.
  */
+
+let hideGhostText = false
+
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Enter" || event.key === "Return") {
+    hideGhostText = true
+  }
+})
+
+document.addEventListener("input", () => {
+  hideGhostText = false
+})
+
 export function createGhostElement(): HTMLSpanElement {
+  if (hideGhostText) return null
   const ghost = document.createElement("span")
   ghost.style.position = "absolute"
   ghost.style.left = "0"
@@ -64,6 +78,12 @@ export function updateGhostText(
   ghostElement: HTMLSpanElement,
   getElementText: (el: Element) => string
 ) {
+  if (hideGhostText) {
+    if (ghostElement && ghostElement.parentNode) {
+      ghostElement.parentNode.removeChild(ghostElement)
+    }
+    return
+  }
   if (!suggestion) return
   const rect = element.getBoundingClientRect()
   ghostElement.style.position = "absolute"

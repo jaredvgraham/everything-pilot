@@ -7,7 +7,7 @@
  * @param numMessages Number of recent messages to include (default: 3)
  * @returns Concatenated recent messages or null if no messages found
  */
-export function extractChatGPTContext(numMessages: number = 3): string | null {
+export function extractChatGPTContext() {
   const turns = Array.from(
     document.querySelectorAll('article[data-testid^="conversation-turn-"]')
   )
@@ -15,6 +15,7 @@ export function extractChatGPTContext(numMessages: number = 3): string | null {
   if (turns.length === 0) {
     return null
   }
+  const numMessages = turns.length
 
   // Get the most recent messages, up to numMessages
   const recentTurns = turns.slice(-numMessages)

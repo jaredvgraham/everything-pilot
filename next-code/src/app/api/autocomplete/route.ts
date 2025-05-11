@@ -69,17 +69,16 @@ export async function POST(req: NextRequest) {
     The user is currently on the following website:
     ${site}
     
-    Persistent user memory:
+    This is what we know about the user:
     ${userMemory.facts.length ? userMemory.facts.join(", ") : "None"}
 
-    Persistent site memory:
+    This is how the user has interacted with the website in the past:
     ${siteMemory.facts.length ? siteMemory.facts.join(", ") : "None"}
 
     Context of the website and what the user is possibly referring to in their current text:
     ${context}
     
-    User is currently typing:
-    "${input}"
+
 
     Instructions:
     - Do NOT repeat or rephrase the user's input.
@@ -91,6 +90,13 @@ export async function POST(req: NextRequest) {
     - Do not add gaps between lines.
     - Only provide the next words or sentence that would logically follow.
     
+    **VERY IMPORTANT BEFORE YOU RETURN YOUR RESPONSE: Do not answer the user input no matter what. And do not include the user's input in your response.**
+
+    **IMPORTANT: You are the user and you finish the text.**
+
+    User is currently typing:
+    "${input}"
+
     Your completion of the user's text:
     `;
 
@@ -108,7 +114,6 @@ export async function POST(req: NextRequest) {
       completion.choices[0]?.message?.content?.replace(/^"|"$/g, "").trim() ||
       "";
 
-    console.log("token usage", completion.usage?.total_tokens);
     console.log("token input", completion.usage?.prompt_tokens);
     console.log("token output", completion.usage?.completion_tokens);
     console.log("suggestion", suggestion);
@@ -144,7 +149,11 @@ export async function POST(req: NextRequest) {
       // UserMemory: add only relevant facts
       let userMemoryUpdated = false;
       for (const fact of facts.userMemory) {
-        if (fact && !userMemory.facts.includes(fact)) {
+        if (
+          fact &&
+          !userMemory.facts.includes(fact) &&
+          userMemory.facts.length < 100
+        ) {
           userMemory.facts.push(fact);
           userMemoryUpdated = true;
         }

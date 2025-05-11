@@ -4,6 +4,7 @@ import "./globals.css";
 import { ClerkLoaded, ClerkLoading, ClerkProvider } from "@clerk/nextjs";
 import { LoadingPage } from "@/components/Loading";
 import Navbar from "@/components/Navbar";
+import Analytics from "@/components/Analytics";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,6 +33,7 @@ export default function RootLayout({
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
           <ClerkLoaded>
+            <Analytics />
             <Navbar />
             {children}
           </ClerkLoaded>

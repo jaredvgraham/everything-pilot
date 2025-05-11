@@ -13,56 +13,53 @@ export async function extractRelevantFacts({
   userMemory: string[];
   siteMemory: string[];
 }) {
+  console.log("context", context);
+
   const prompt = `
-  Analyze the following user input, context, and site. 
-  Return a JSON object with up to three relevant, persistent, and actionable insights for each of these categories.
-  
-  Known facts we already know:
-  - userMemory: ${userMemory.join(", ")}
-  - siteMemory: ${siteMemory.join(", ")}
-  
-  - userMemory: actionable, persistent facts about the user (e.g., interests, skills, professional background, communication style, habits, frequently discussed topics)
-  - siteMemory: actionable, persistent facts about what the user is using the site or app for (e.g., their ongoing purpose, intent, or focus on this site/app)
- 
-  Guidelines:
-  - Each fact should be a concise phrase, maximum 4 words.
-  - Generalize facts to be broadly useful and not overly specific to a single event or message.
-  - Do not include facts that are already known to us.
-  - Do not include generic activity verbs such as "engaging with", "using", "browsing", "reading", "on", etc. Focus on the topic, intent, or object.
-  - The fact should stand alone as a meaningful, persistent insight even if the activity verb is removed.
-  - Do not include facts that simply state the user is present on or using a site/app.
-  - Focus on the purpose, topic, or specific action (e.g., "developer tools", "tech industry discussions", "job searching", "recipe search").
-  - Avoid both excessive brevity (e.g., just a single word) and excessive verbosity (e.g., a paragraph).
-  - When possible, include specific objects or entities (e.g., (name), (job), (recipe), (task)) and any relevant qualifiers or context.
-  - Do not include explanations or justifications outside the fact itself.
-  - If nothing is relevant for a category, return an empty array for that category.
-  - Do not repeat the same fact in multiple categories.
-  
-  Negative examples (do not do this):
-  - Any fact longer than 4 words
-  
-  Positive examples:
-  - siteMemory: ["developer tools", "AI tool opinions", "job searching"]
-  - userMemory: ["software developer", "AI tool user", "enjoys spicy food"]
- 
-  NEVER include:
-  - Facts in your response that are already known to us.
-  - Only include additional facts that are not already known to us we will append to the existing facts.
-  
-  Here is the user input, context, and site:
-  ...
-  User input: "${input}"
-  Context: "${context}"
-  Site: "${site}"
-  
-  Output:
-  `;
+You are helping build a memory system for a persistent, learning AI chat assistant. This assistant should remember and learn about each user over time to personalize responses, anticipate needs, and provide highly relevant, context-aware assistance.
+
+Your task: Extract the most essential, persistent, and actionable facts from the user's input, context, and site. These facts will be stored as long-term memory for the assistant.
+
+**Instructions:**
+- Extract facts that are highly relevant, non-redundant, and likely to remain true over time.
+- A persistent fact is any information about the user's identity, roles, ongoing projects, long-term interests, affiliations, or the main purpose for which they are using the site/app. This includes, but is not limited to, their profession, creative pursuits, leadership roles, major goals, and the core focus of their current activities.
+- Always extract facts that describe who the user is, what they do, what they are working on, and why they are using the site/app, as long as these are not already known.
+- Do NOT include trivial, generic, or one-off actions unless they reveal a persistent pattern or interest.
+- Each fact should be concise (1-2 phrases), specific, and actionable.
+- Group related observations into a single, clear fact.
+- Do NOT restate the same thing in different words.
+- Do NOT repeat facts already known (see below).
+- If you are unsure whether a fact is useful, include it, but avoid generic or redundant statements.
+- If nothing new or relevant is found for a category, return an empty array for that category.
+
+**Categories:**
+- userMemory: Persistent facts about the user (e.g., interests, skills, goals, preferences, pain points, communication style, habits, frequently discussed topics, meaningful behavioral patterns)
+- siteMemory: Persistent facts about what the user is using the site/app for (e.g., ongoing purpose, intent, or focus). Do NOT include facts already in userMemory. Only include if clearly relevant.
+
+**Known facts:**
+- userMemory: ${userMemory.join("; ")}
+- siteMemory: ${siteMemory.join("; ")}
+
+**Input:**
+- User input: "${input}"
+- Context: "${context}"
+- Site: "${site}"
+
+**Output format:**
+Return a JSON object with this structure:
+{
+  "userMemory": [<up to 3 new, relevant facts or empty array>],
+  "siteMemory": [<up to 3 new, relevant facts or empty array>]
+}
+
+If no new, relevant fact is found, return an empty array for that category.
+`;
 
   const completion = await gemini.chat.completions.create({
     model: "gemini-2.0-flash",
     messages: [{ role: "user", content: prompt }],
     max_tokens: 200,
-    temperature: 0.2,
+    temperature: 0.4,
   });
 
   const raw = completion.choices[0]?.message?.content || "";
