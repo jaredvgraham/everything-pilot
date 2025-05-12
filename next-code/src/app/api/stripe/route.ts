@@ -132,8 +132,7 @@ export async function PUT(req: NextRequest) {
         proration_behavior: "create_prorations",
       }
     );
-    user.plan = newPlan;
-    await user.save();
+
     return NextResponse.json({ status: 200, message: "Subscription updated" });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
