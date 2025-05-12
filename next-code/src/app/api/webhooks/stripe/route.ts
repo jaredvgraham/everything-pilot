@@ -13,6 +13,8 @@ if (!webhookSecret) {
 
 export async function POST(req: NextRequest) {
   console.log("Stripe webhook received");
+  console.log("webhookSecret", webhookSecret);
+
   const client = await clerkClient();
   await connectDB();
   const payload = await req.text();
