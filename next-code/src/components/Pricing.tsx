@@ -86,7 +86,7 @@ export default function PricingPage({
       const res = await fetch("/api/stripe", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan: "pro" }),
+        body: JSON.stringify({ newPlan: plan }),
       });
       const data = await res.json();
       setSuccess("Upgrade successful. Redirecting to dashboard...");
