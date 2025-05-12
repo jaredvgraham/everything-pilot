@@ -1,6 +1,6 @@
 "use client";
 
-import PricingPage from "@/app/pricing/page";
+import PricingPage from "@/components/Pricing";
 import { SignOutButton, useUser } from "@clerk/nextjs";
 import React, { useState } from "react";
 
