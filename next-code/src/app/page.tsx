@@ -9,7 +9,7 @@ export default function Home() {
   return (
     <>
       <SignedIn>
-        <LandingPage />
+        <Dashboard />
       </SignedIn>
       <SignedOut>
         <LandingPage />
