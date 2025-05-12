@@ -20,6 +20,7 @@ async function getOrCreateCustomerId(user: IUser) {
   const customerId = user.customerId;
   if (!customerId) {
     console.log("Creating customer");
+
     const customer = await stripe.customers.create({
       email: user.email,
     });
@@ -77,6 +78,7 @@ export async function POST(req: NextRequest) {
     });
     return NextResponse.json({ url: session.url });
   } catch (error: any) {
+    console.log("Error creating checkout session", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
