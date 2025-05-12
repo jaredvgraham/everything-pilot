@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
       const subId = session.subscription;
       const email = session.customer_details?.email;
 
-      const user = await User.findOne({ email });
+      const user = await User.findOne({ customerId: session.customer });
       if (!user) {
         return NextResponse.json({
           status: "error",
