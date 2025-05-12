@@ -5,16 +5,25 @@ import User from "@/app/backend/models/userModel";
 import { clerkClient } from "@clerk/nextjs/server";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
-const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
+const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+if (!webhookSecret) {
+  throw new Error("STRIPE_WEBHOOK_SECRET is not set");
+}
 
 export async function POST(req: NextRequest) {
+  console.log("Stripe webhook received");
   const client = await clerkClient();
   await connectDB();
   const payload = await req.text();
   const sig = req.headers.get("Stripe-Signature") as string;
 
   try {
-    const event = stripe.webhooks.constructEvent(payload, sig, webhookSecret);
+    const event = stripe.webhooks.constructEvent(
+      payload,
+      sig,
+      webhookSecret as string
+    );
     if (event.type === "checkout.session.completed") {
       const session = event.data.object as Stripe.Checkout.Session;
 
@@ -91,6 +100,7 @@ export async function POST(req: NextRequest) {
       });
       await user.save();
     }
+
     if (event.type === "customer.subscription.deleted") {
       const subscription = event.data.object as Stripe.Subscription;
       const customerId = subscription.customer;
