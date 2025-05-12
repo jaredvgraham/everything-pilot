@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { CheckIcon, XMarkIcon, ArrowUpIcon } from "@heroicons/react/24/solid";
+import { useRouter } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
 
 const plans = [
   {
@@ -22,19 +24,40 @@ const plans = [
     planKey: "pro",
     features: [
       { text: "Core autocomplete features", available: true },
-      { text: "Up to 1000 completions/month", available: true },
-      { text: "Email support", available: true },
       { text: "Unlimited completions", available: true },
+
+      { text: "Email support", available: true },
       { text: "Priority support", available: true },
     ],
   },
 ];
 
-export default function PricingPage() {
+export default function PricingPage({
+  upgrade,
+  currentPlanProp,
+}: {
+  upgrade?: boolean;
+  currentPlanProp?: string;
+}) {
+  const router = useRouter();
+  const { user } = useUser();
+
   const [loading, setLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [userPlan, setUserPlan] = useState<string | null>(
+    user?.publicMetadata.plan as string
+  );
 
   const handleSubscribe = async (plan: string) => {
+    if (user?.publicMetadata.plan === plan.toLowerCase()) {
+      router.push("/settings");
+      return;
+    }
+    if (user?.publicMetadata.plan !== plan.toLowerCase()) {
+      await handleUpgrade(plan);
+      return;
+    }
     setLoading(plan);
     setError(null);
     try {
@@ -49,6 +72,25 @@ export default function PricingPage() {
       } else {
         setError(data.message || "Failed to create checkout session.");
       }
+    } catch (err: any) {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(null);
+    }
+  };
+
+  const handleUpgrade = async (plan: string) => {
+    setLoading("upgrade");
+    setError(null);
+    try {
+      const res = await fetch("/api/stripe", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan: "pro" }),
+      });
+      const data = await res.json();
+      setSuccess("Upgrade successful. Redirecting to dashboard...");
+      router.push("/");
     } catch (err: any) {
       setError("Something went wrong. Please try again.");
     } finally {
@@ -75,7 +117,7 @@ export default function PricingPage() {
           {plans.map((plan) => (
             <div
               key={plan.planKey}
-              className={`rounded-2xl shadow-xl divide-y divide-gray-100 bg-white ${
+              className={`rounded-2xl shadow-xl divide-y divide-gray-100 bg-white relative ${
                 plan.planKey === "pro"
                   ? "border-2 border-cyan-500 relative"
                   : "border border-gray-200"
@@ -85,6 +127,13 @@ export default function PricingPage() {
                 <div className="absolute top-0 right-5 -translate-y-1/2 translate-x-1/2 ">
                   <span className="inline-flex rounded-full bg-gradient-to-r from-cyan-400 to-cyan-500 px-4 py-1 text-sm font-semibold text-white shadow">
                     Popular
+                  </span>
+                </div>
+              )}
+              {user?.publicMetadata.plan === plan.planKey.toLowerCase() && (
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 ">
+                  <span className="inline-flex rounded-full bg-gradient-to-r from-purple-400 to-cyan-500 px-4 py-1 text-sm font-semibold text-white shadow">
+                    Current Plan
                   </span>
                 </div>
               )}
@@ -111,7 +160,11 @@ export default function PricingPage() {
                 >
                   {loading === plan.planKey
                     ? "Redirecting..."
-                    : `Get started with ${plan.name}`}
+                    : `${
+                        user?.publicMetadata.plan === plan.planKey.toLowerCase()
+                          ? "Manage Subscription"
+                          : `Get started with ${plan.name}`
+                      }`}
                 </button>
                 {plan.planKey === "basic" && (
                   <div className="mt-4 text-center">

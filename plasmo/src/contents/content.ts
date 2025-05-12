@@ -4,7 +4,7 @@ console.log("[AI Autocomplete] Content script loaded")
 
 function initialize() {
   const inputs = document.querySelectorAll(
-    'input:not([type="password"]), textarea, [contenteditable="true"]'
+    'input[type="text"], input[type="search"], input[type="email"], input[type="url"], input[type="tel"], input[type="number"], textarea, [contenteditable="true"]'
   )
   console.log(
     `[AI Autocomplete] Initializing. Found ${inputs.length} input(s)/textarea(s).`
@@ -25,7 +25,7 @@ const observer = new MutationObserver((mutations) => {
   mutations.forEach((mutation) => {
     if (mutation.addedNodes.length) {
       const inputs = document.querySelectorAll(
-        'input:not([type="password"]), textarea, [contenteditable="true"]'
+        'input[type="text"], input[type="search"], input[type="email"], input[type="url"], input[type="tel"], input[type="number"], textarea, [contenteditable="true"]'
       )
       inputs.forEach((input) => {
         if (!input.hasAttribute("data-autocomplete-initialized")) {

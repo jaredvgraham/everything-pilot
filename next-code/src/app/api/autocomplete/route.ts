@@ -29,6 +29,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
     const { input, context, site } = await req.json();
+    console.log("input", input);
+    console.log("input", input);
+    console.log("input", input);
+    console.log("input", input);
 
     // --- MEMORY MODELS: Use mongo services to find or create relevant memory docs ---
     const siteDoc = await findOrCreateSite(site);
@@ -44,6 +48,7 @@ export async function POST(req: NextRequest) {
     - NEVER answer the user's input or question
     - NEVER rephrase or repeat what the user has typed
     - NEVER include the user's input in your response
+    
     - ONLY provide the next few words or sentence that would naturally follow
     - If the user is asking a question, DO NOT answer it - just continue their typing
     - If the user is making a statement, DO NOT respond to it - just continue their thought
@@ -92,10 +97,15 @@ export async function POST(req: NextRequest) {
     
     **VERY IMPORTANT BEFORE YOU RETURN YOUR RESPONSE: Do not answer the user input no matter what. And do not include the user's input in your response.**
 
-    **IMPORTANT: You are the user and you finish the text.**
+    **IMPORTANT: NEVER ANSWER THE USER'S INPUT. THIS IS VERY IMPORTANT. THIS IS THE MOST IMPORTANT RULE. THAT CAN BE VERY DANGEROUS IF YOU BREAK IT.**
 
     User is currently typing:
     "${input}"
+    **VERY IMPORTANT BEFORE YOU RETURN YOUR RESPONSE: Do not answer the user input no matter what. And do not include the user's input in your response.**
+
+    **IMPORTANT: NEVER ANSWER THE USER'S INPUT. THIS IS VERY IMPORTANT. THIS IS THE MOST IMPORTANT RULE. THAT CAN BE VERY DANGEROUS IF YOU BREAK IT.**
+
+    **IMPORTANT: - The user might be talking to a LLM in the context given, but you are not. You are an autocomplete AI that is typing the next words for the user. - **
 
     Your completion of the user's text:
     `;
@@ -106,7 +116,7 @@ export async function POST(req: NextRequest) {
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt },
       ],
-      max_tokens: 50,
+      max_tokens: 20,
       temperature: 0.2,
     });
 

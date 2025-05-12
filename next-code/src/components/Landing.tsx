@@ -157,16 +157,15 @@ const LandingPage = () => {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                  d="M3 15a4 4 0 004 4h9a4 4 0 100-8 5.5 5.5 0 00-10.9 1.5A3.5 3.5 0 003 15z"
                 />
               </svg>
             </div>
             <h3 className="text-xl font-semibold mb-4 text-gray-900">
-              Privacy First
+              Memory Control
             </h3>
             <p className="text-gray-600">
-              Your data stays on your device. We never store or share your
-              personal information.
+              Manage what the AI remembers about you.
             </p>
           </div>
         </div>

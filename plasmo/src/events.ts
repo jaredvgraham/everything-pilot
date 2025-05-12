@@ -164,6 +164,7 @@ export async function handleInput(event: Event) {
       currentSuggestion = suggestion
       if (!ghostElement) {
         ghostElement = createGhostElement()
+
         document.body.appendChild(ghostElement)
       }
       updateGhostText(element, suggestion, ghostElement, getElementText)
@@ -193,7 +194,7 @@ export function handleKeyDown(event: Event) {
     }
     pauseTimeout = window.setTimeout(() => {
       pauseSuggestions = false
-    }, 3500)
+    }, 4500)
     console.log("[AI Autocomplete] Enter key pressed")
     if (element instanceof HTMLElement && element.isContentEditable) {
       element.focus()
@@ -210,19 +211,29 @@ export function handleKeyDown(event: Event) {
     )
     keyboardEvent.preventDefault()
     if (element instanceof HTMLElement && element.isContentEditable) {
-      element.focus()
-      // @ts-ignore
-      const success = document.execCommand(
-        "insertText",
-        false,
-        currentSuggestion
-      )
-      if (!success) {
-        alert("Could not insert suggestion. Please paste manually.")
-      }
-    } else {
+      // Always append at the end
       const text = getElementText(element) + currentSuggestion
       setElementText(element, text)
+      // Move caret to end
+      const range = document.createRange()
+      range.selectNodeContents(element)
+      range.collapse(false)
+      const sel = window.getSelection()
+      sel.removeAllRanges()
+      sel.addRange(range)
+      element.focus()
+    } else {
+      // Always append at the end
+      const text = getElementText(element) + currentSuggestion
+      setElementText(element, text)
+      // Move cursor to end
+      if (
+        element instanceof HTMLInputElement ||
+        element instanceof HTMLTextAreaElement
+      ) {
+        element.selectionStart = element.selectionEnd = text.length
+        element.focus()
+      }
     }
     currentSuggestion = null
     if (ghostElement) {
