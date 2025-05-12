@@ -8,7 +8,7 @@ import { useUser } from "@clerk/nextjs";
 const plans = [
   {
     name: "Basic",
-    price: 5,
+    price: 4.99,
     planKey: "basic",
     features: [
       { text: "Core autocomplete features", available: true },
@@ -20,7 +20,7 @@ const plans = [
   },
   {
     name: "Pro",
-    price: 15,
+    price: 9.99,
     planKey: "pro",
     features: [
       { text: "Core autocomplete features", available: true },
@@ -54,7 +54,10 @@ export default function PricingPage({
       router.push("/settings");
       return;
     }
-    if (user?.publicMetadata.plan !== plan.toLowerCase()) {
+    if (
+      user?.publicMetadata.plan !== plan.toLowerCase() &&
+      user?.publicMetadata.plan !== "none"
+    ) {
       await handleUpgrade(plan);
       return;
     }

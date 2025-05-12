@@ -7,14 +7,11 @@ import { connectDB } from "@/app/backend/config/mongo";
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL?.split("/api")[0];
 
-// Dummy fallback for createRecurringPrice if not present
-function createRecurringPrice(plan: string) {
-  if (plan === "basic") return 500;
-  if (plan === "pro") return 1500;
-  return 0;
-}
-
-// Dummy fallback for connectDB if not present
+// Map your plan keys to Stripe Price IDs from your dashboard
+const PRICE_IDS: Record<string, string> = {
+  basic: process.env.STRIPE_BASIC_PRICE_ID as string,
+  pro: process.env.STRIPE_PRO_PRICE_ID as string,
+};
 
 async function getOrCreateCustomerId(user: IUser) {
   const customerId = user.customerId;
@@ -46,17 +43,10 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-    const recurringPrice = createRecurringPrice(plan);
-    if (recurringPrice === 0) {
+    const priceId = PRICE_IDS[plan];
+    if (!priceId) {
       return NextResponse.json({ message: "Invalid plan" }, { status: 400 });
     }
-    const recurringStripePrice = await stripe.prices.create({
-      unit_amount: recurringPrice,
-      currency: "usd",
-      recurring: { interval: "month" },
-      metadata: { type: "indefinite" },
-      product_data: { name: plan },
-    });
     // get or create customer Id
     const customerId = await getOrCreateCustomerId(user);
     user.customerId = customerId;
@@ -65,10 +55,9 @@ export async function POST(req: NextRequest) {
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       customer: customerId,
-
       line_items: [
         {
-          price: recurringStripePrice.id,
+          price: priceId,
           quantity: 1,
         },
       ],
@@ -98,17 +87,6 @@ export async function PUT(req: NextRequest) {
         { status: 400 }
       );
     }
-    const recurringPrice = createRecurringPrice(newPlan);
-    if (recurringPrice === 0) {
-      return NextResponse.json({ message: "Invalid plan" }, { status: 400 });
-    }
-    const recurringStripePrice = await stripe.prices.create({
-      unit_amount: recurringPrice,
-      currency: "usd",
-      recurring: { interval: "month" },
-      metadata: { type: "indefinite" },
-      product_data: { name: newPlan },
-    });
     // get or create customer Id
     const customerId = await getOrCreateCustomerId(user);
     // Create a checkout session for the purchase
@@ -121,6 +99,10 @@ export async function PUT(req: NextRequest) {
     const subscription = await stripe.subscriptions.retrieve(
       user.subscriptionId
     );
+    const priceId = PRICE_IDS[newPlan];
+    if (!priceId) {
+      return NextResponse.json({ message: "Invalid plan" }, { status: 400 });
+    }
     const updatedSubscription = await stripe.subscriptions.update(
       user.subscriptionId,
       {
@@ -128,7 +110,7 @@ export async function PUT(req: NextRequest) {
         items: [
           {
             id: subscription.items.data[0].id,
-            price: recurringStripePrice.id,
+            price: priceId,
           },
         ],
         proration_behavior: "create_prorations",

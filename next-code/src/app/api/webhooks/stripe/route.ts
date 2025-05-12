@@ -93,8 +93,9 @@ export async function POST(req: NextRequest) {
     }
     if (event.type === "customer.subscription.deleted") {
       const subscription = event.data.object as Stripe.Subscription;
+      const customerId = subscription.customer;
 
-      const user = await User.findOne({ subscriptionId: subscription.id });
+      const user = await User.findOne({ customerId });
       if (!user) {
         return NextResponse.json({
           status: "error",
