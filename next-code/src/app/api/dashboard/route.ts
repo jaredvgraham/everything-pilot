@@ -5,9 +5,11 @@ import Site from "@/app/backend/models/siteModel";
 import SessionMemory from "@/app/backend/models/sessionMemoryModel";
 import Suggestion from "@/app/backend/models/suggestionModel";
 import { auth } from "@clerk/nextjs/server";
+import { connectDB } from "@/app/backend/config/mongo";
 
 export async function GET(req: NextRequest) {
   try {
+    await connectDB();
     // Get user ID from Clerk (or replace with your auth logic)
     const { userId } = await auth();
     if (!userId) {
@@ -67,6 +69,7 @@ export async function GET(req: NextRequest) {
 
 // DELETE a single user memory fact
 export async function DELETE(req: NextRequest) {
+  await connectDB();
   const { userId } = await auth();
   if (!userId)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

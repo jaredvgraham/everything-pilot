@@ -2,14 +2,19 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { UserButton, useUser } from "@clerk/nextjs";
+import { SignedIn, SignedOut } from "@clerk/nextjs";
 import Image from "next/image";
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { isSignedIn } = useUser();
 
-  const navigation = [
+  const navigationSignedOut = [
     { name: "Features", href: "/#features" },
     { name: "Pricing", href: "/pricing" },
+  ];
+  const navigationSignedIn = [
+    { name: "Dashboard", href: "/dashboard" },
+    { name: "Settings", href: "/settings" },
   ];
 
   return (
@@ -33,15 +38,17 @@ const Navbar = () => {
           {/* Centered Navigation */}
           <div className="hidden md:flex items-center justify-center flex-1">
             <div className="flex space-x-8">
-              {navigation.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className="text-gray-600 hover:text-cyan-600 px-3 py-2 text-base font-semibold tracking-wide transition-colors"
-                >
-                  {item.name}
-                </Link>
-              ))}
+              {(isSignedIn ? navigationSignedIn : navigationSignedOut).map(
+                (item) => (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    className="text-gray-600 hover:text-cyan-600 px-3 py-2 text-base font-semibold tracking-wide transition-colors"
+                  >
+                    {item.name}
+                  </Link>
+                )
+              )}
             </div>
           </div>
 
@@ -112,16 +119,18 @@ const Navbar = () => {
       {isMenuOpen && (
         <div className="md:hidden">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-            {navigation.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                className="text-gray-700 hover:text-cyan-600 block px-3 py-2 text-base font-semibold tracking-wide"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                {item.name}
-              </Link>
-            ))}
+            {(isSignedIn ? navigationSignedIn : navigationSignedOut).map(
+              (item) => (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className="text-gray-700 hover:text-cyan-600 block px-3 py-2 text-base font-semibold tracking-wide"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  {item.name}
+                </Link>
+              )
+            )}
             {!isSignedIn && (
               <>
                 <Link

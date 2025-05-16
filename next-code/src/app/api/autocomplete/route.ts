@@ -8,6 +8,7 @@ import { findOrCreateUserSiteContext } from "@/app/backend/services/mongo/userSi
 import { extractRelevantFacts } from "@/app/backend/services/gemini/factExtractor";
 import { connectDB } from "@/app/backend/config/mongo";
 import Suggestion from "@/app/backend/models/suggestionModel";
+import User from "@/app/backend/models/userModel";
 
 // Handle preflight (OPTIONS) requests
 export async function OPTIONS() {
@@ -27,6 +28,16 @@ export async function POST(req: NextRequest) {
     await connectDB();
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    const user = await User.findOne({ clerkId: userId });
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 401 });
+    }
+    if (user.plan === "none") {
+      return NextResponse.json(
+        { error: "User doesnt have a plan" },
+        { status: 401 }
+      );
     }
     const { input, context, site } = await req.json();
     console.log("input", input);
