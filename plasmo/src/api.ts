@@ -16,6 +16,14 @@ async function getAuthToken(): Promise<string | null> {
   })
 }
 
+async function getUserPlan(): Promise<string | null> {
+  return new Promise((resolve) => {
+    chrome.runtime.sendMessage({ type: "GET_USER_PLAN" }, (response) => {
+      resolve(response.plan)
+    })
+  })
+}
+
 /**
  * Calls the backend to get an AI suggestion for the given input and context.
  */
@@ -29,6 +37,13 @@ export async function getSuggestion(
   try {
     const site = window.location.hostname
     const token = await getAuthToken()
+    const plan = await getUserPlan()
+    console.log("[AI Autocomplete] User plan:", plan)
+
+    if (plan === "none") {
+      console.error("[AI Autocomplete] User is on the free plan")
+      return null
+    }
 
     if (!token) {
       console.error("[AI Autocomplete] No auth token available")
