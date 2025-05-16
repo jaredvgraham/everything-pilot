@@ -13,7 +13,7 @@ const Navbar = () => {
     { name: "Pricing", href: "/pricing" },
   ];
   const navigationSignedIn = [
-    { name: "Dashboard", href: "/dashboard" },
+    { name: "Dashboard", href: "/" },
     { name: "Settings", href: "/settings" },
   ];
 
