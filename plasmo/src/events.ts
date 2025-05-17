@@ -211,9 +211,6 @@ export function handleKeyDown(event: Event) {
     )
     keyboardEvent.preventDefault()
     if (element instanceof HTMLElement && element.isContentEditable) {
-      // Always append at the end
-      const text = getElementText(element) + currentSuggestion
-      setElementText(element, text)
       // Move caret to end
       const range = document.createRange()
       range.selectNodeContents(element)
@@ -222,6 +219,17 @@ export function handleKeyDown(event: Event) {
       sel.removeAllRanges()
       sel.addRange(range)
       element.focus()
+
+      // Insert suggestion at caret (which is now at the end)
+      // @ts-ignore
+      const success = document.execCommand(
+        "insertText",
+        false,
+        currentSuggestion
+      )
+      if (!success) {
+        alert("Could not insert suggestion. Please paste manually.")
+      }
     } else {
       // Always append at the end
       const text = getElementText(element) + currentSuggestion
