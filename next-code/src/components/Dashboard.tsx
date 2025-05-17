@@ -10,6 +10,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { useUser } from "@clerk/nextjs";
 import SiteMemoryCard from "./SiteMemoryCard";
+import { MagnifyingGlassIcon } from "@heroicons/react/24/solid";
 
 export interface UserMemory {
   facts: string[];
@@ -39,7 +40,7 @@ const Dashboard: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState<string | null>(null);
   const { user } = useUser();
-
+  const [searchQuery, setSearchQuery] = useState("");
   const MONTHLY_LIMIT = user?.publicMetadata.plan === "basic" ? 1000 : 5000;
 
   useEffect(() => {
@@ -50,6 +51,7 @@ const Dashboard: React.FC = () => {
         const res = await fetch("/api/dashboard");
         if (!res.ok) throw new Error("Failed to fetch dashboard data");
         const json = await res.json();
+        console.log("json", json);
         setData(json);
       } catch (err: any) {
         setError(err.message || "Unknown error");
@@ -195,7 +197,7 @@ const Dashboard: React.FC = () => {
       <div className="flex flex-col md:flex-row items-center justify-between mb-10 bg-gradient-to-r from-cyan-50 to-blue-50 rounded-3xl p-8 shadow-lg relative overflow-hidden">
         <div>
           <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-2">
-            Welcome back, <span className="text-cyan-600">User</span>!
+            Welcome back!
           </h1>
           <p className="text-lg text-gray-500">
             Here's your productivity dashboard for this month.
@@ -345,13 +347,31 @@ const Dashboard: React.FC = () => {
             <ServerStackIcon className="w-6 h-6 text-cyan-400" />
             <h2 className="text-xl font-bold text-gray-900">Site Memories</h2>
           </div>
+          {/* search bar */}
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              placeholder="Search site memories"
+              className="w-full p-2 rounded-md border border-gray-300"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+
           {siteMemories.length === 0 ? (
             <div className="text-gray-400 italic py-4">
               No site memories stored.
             </div>
           ) : (
             <div className="flex flex-col gap-4 overflow-y-auto pr-2">
-              {siteMemories.map((site) => (
+              {(searchQuery
+                ? siteMemories.filter((site) =>
+                    site.siteName
+                      ?.toLowerCase()
+                      .includes(searchQuery.toLowerCase())
+                  )
+                : siteMemories
+              ).map((site) => (
                 <SiteMemoryCard
                   key={site.siteId}
                   site={site}

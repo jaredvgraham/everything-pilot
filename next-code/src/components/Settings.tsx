@@ -31,7 +31,7 @@ const Settings = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-gray-100 to-gray-200 py-12 px-6">
+    <div className="n bg-gradient-to-r  pt-20 px-6">
       <div className="max-w-4xl mx-auto">
         {/* Header Section */}
         <div className="text-center mb-12">
