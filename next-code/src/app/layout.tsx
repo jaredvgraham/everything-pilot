@@ -17,8 +17,29 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Pilotype",
-  description: "Get AI text completion for your typing everywhere",
+  title: "Pilotype - AI Autocomplete Tool",
+  description: "Speed up your writing with Pilotype's AI-powered autocomplete.",
+  openGraph: {
+    title: "Pilotype - AI Autocomplete Tool",
+    description:
+      "Speed up your writing with Pilotype's AI-powered autocomplete.",
+    url: "https://pilotype.com",
+    images: [
+      {
+        url: "https://www.pilotype.com/pilotype-logo-t.png",
+        width: 800,
+        height: 600,
+        alt: "Pilotype Logo",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Pilotype - AI Autocomplete Tool",
+    description:
+      "Speed up your writing with Pilotype's AI-powered autocomplete.",
+    images: ["https://www.pilotype.com/pilotype-logo-t.png"],
+  },
 };
 
 export default function RootLayout({
