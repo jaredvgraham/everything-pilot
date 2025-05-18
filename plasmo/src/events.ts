@@ -36,45 +36,63 @@ let pauseTimeout: number | null = null
 //   "register"
 // ])
 
-// TODO: Add sensitive field check
-// function isSensitiveField(
-//   element: HTMLInputElement | HTMLTextAreaElement | HTMLElement
-// ): boolean {
-//   if (element instanceof HTMLInputElement) {
-//     // Check for password fields
-//     if (element.type === "password") {
-//       return true
-//     }
+// Robust sensitive field detection
+export function isSensitiveField(element: Element): boolean {
+  console.log("checking sensitive field", element)
 
-//     // Check for credit card fields
-//     const creditCardPatterns = [
-//       /credit.*card/i,
-//       /cc[-_]?num/i,
-//       /card[-_]?num/i,
-//       /card[-_]?number/i,
-//       /cc[-_]?number/i,
-//       /cc[-_]?code/i,
-//       /cvv/i,
-//       /cvc/i,
-//       /security[-_]?code/i
-//     ]
+  if (
+    element instanceof HTMLInputElement ||
+    element instanceof HTMLTextAreaElement
+  ) {
+    // Check by type
+    const sensitiveTypes = ["password"]
+    if (sensitiveTypes.includes(element.type)) return true
 
-//     const fieldName = element.name?.toLowerCase() || ""
-//     const fieldId = element.id?.toLowerCase() || ""
-//     const fieldPlaceholder = element.placeholder?.toLowerCase() || ""
+    // Check by name, id, placeholder, aria-label, autocomplete
+    const sensitivePatterns = [
+      /password/i,
+      /credit.*card/i,
+      /cc[-_]?num/i,
+      /card[-_]?num/i,
+      /card[-_]?number/i,
+      /cc[-_]?number/i,
+      /cc[-_]?code/i,
+      /cvv/i,
+      /cvc/i,
+      /security[-_]?code/i,
+      /ssn/i,
+      /social.*security/i,
+      /bank.*account/i,
+      /iban/i,
+      /routing/i
+    ]
 
-//     return creditCardPatterns.some(
-//       (pattern) =>
-//         pattern.test(fieldName) ||
-//         pattern.test(fieldId) ||
-//         pattern.test(fieldPlaceholder)
-//     )
-//   }
+    const attributes = [
+      element.name,
+      element.id,
+      element.placeholder,
+      element.getAttribute("aria-label"),
+      element.getAttribute("autocomplete")
+    ]
+      .filter(Boolean)
+      .join(" ")
 
-//   return false
-// }
+    if (sensitivePatterns.some((pattern) => pattern.test(attributes)))
+      return true
+  }
+
+  // For contenteditable or generic elements
+  if (element instanceof HTMLElement && element.isContentEditable) {
+    const label = element.getAttribute("aria-label") || ""
+    if (label && /password|credit.*card|ssn|email|phone/i.test(label))
+      return true
+  }
+
+  return false
+}
 
 export async function handleInput(event: Event) {
+  console.log("handleInput")
   if (pauseSuggestions) {
     return
   }
@@ -84,6 +102,17 @@ export async function handleInput(event: Event) {
     | HTMLElement
 
   // Check if this is a sensitive field
+  if (isSensitiveField(element)) {
+    console.log(
+      "[AI Autocomplete] Skipping suggestions for sensitive field",
+      element
+    )
+    if (ghostElement) {
+      ghostElement.remove()
+      ghostElement = null
+    }
+    return
+  }
 
   const text = getElementText(element)
 
@@ -97,6 +126,7 @@ export async function handleInput(event: Event) {
   }
 
   console.log("[AI Autocomplete] Input event detected:", text)
+  console.log("[AI Autocomplete] Input event detected 2:", text)
 
   // Immediately clear current suggestion and ghost text
   currentSuggestion = null
