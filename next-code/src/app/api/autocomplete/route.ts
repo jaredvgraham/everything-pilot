@@ -46,9 +46,12 @@ export async function POST(req: NextRequest) {
     console.log("input", input);
 
     // --- MEMORY MODELS: Use mongo services to find or create relevant memory docs ---
+
     const siteDoc = await findOrCreateSite(site);
-    const userMemory = await findOrCreateUserMemory(userId);
-    const siteMemory = await findOrCreateSiteMemory(userId, siteDoc._id);
+    const [userMemory, siteMemory] = await Promise.all([
+      findOrCreateUserMemory(userId),
+      findOrCreateSiteMemory(userId, siteDoc._id),
+    ]);
 
     // --- END MEMORY MODELS SETUP ---
 
