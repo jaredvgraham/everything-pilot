@@ -1,1 +1,0 @@
-const n=document.getElementById("login-btn"),t=document.getElementById("status-text");n.addEventListener("click",()=>{chrome.windows.create({url:"https://everything-pilot.vercel.app/extension-login",type:"popup",width:480,height:620})});chrome.storage.local.get("jwt",e=>{e.jwt?t.textContent="✅ Logged in":t.textContent="🔒 Not logged in"});
