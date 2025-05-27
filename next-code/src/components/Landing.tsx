@@ -91,9 +91,6 @@ const LandingPage = () => {
           >
             Add to Chrome
           </button>
-          <button className="border border-blue-200 text-cyan-600 px-8 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-all shadow-sm hover:shadow">
-            Learn More
-          </button>
         </div>
         <AutocompleteDemo />
       </div>
