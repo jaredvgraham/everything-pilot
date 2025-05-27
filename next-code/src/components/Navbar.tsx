@@ -64,12 +64,15 @@ const Navbar = () => {
                 >
                   Sign in
                 </Link>
-                <Link
-                  href="/sign-up"
-                  className="bg-gradient-to-r from-cyan-400 to-cyan-500 text-white px-4 py-2 rounded-lg text-base font-semibold uppercase tracking-wide hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg hover:shadow-xl"
+                <button
+                  onClick={() => {
+                    window.open(
+                      "https://chromewebstore.google.com/detail/pilotype/dgigbnmdcejpknkgfgaoabglpfhocakh"
+                    );
+                  }}
                 >
                   Get Started
-                </Link>
+                </button>
               </>
             )}
           </div>
