@@ -72,6 +72,9 @@ export const Home = () => {
                 gap: "12px"
               }}>
               <button
+                onClick={() => {
+                  window.open(`${syncHost}/pricing`, "_blank")
+                }}
                 style={{
                   padding: "12px",
                   backgroundColor: "#f9fafb",

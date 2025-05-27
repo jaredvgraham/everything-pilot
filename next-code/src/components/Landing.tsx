@@ -81,7 +81,14 @@ const LandingPage = () => {
           with smart suggestions that learn from your behavior.
         </p>
         <div className="flex justify-center gap-4">
-          <button className="bg-gradient-to-r from-cyan-400 to-cyan-500 text-white px-8 py-3 rounded-lg font-semibold hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg hover:shadow-xl">
+          <button
+            className="bg-gradient-to-r from-cyan-400 to-cyan-500 text-white px-8 py-3 rounded-lg font-semibold hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg hover:shadow-xl"
+            onClick={() => {
+              window.open(
+                "https://chromewebstore.google.com/detail/pilotype/dgigbnmdcejpknkgfgaoabglpfhocakh"
+              );
+            }}
+          >
             Add to Chrome
           </button>
           <button className="border border-blue-200 text-cyan-600 px-8 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-all shadow-sm hover:shadow">
