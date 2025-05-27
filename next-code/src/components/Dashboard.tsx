@@ -11,6 +11,7 @@ import {
 import { useUser } from "@clerk/nextjs";
 import SiteMemoryCard from "./SiteMemoryCard";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/solid";
+import { useRouter } from "next/navigation";
 
 export interface UserMemory {
   facts: string[];
@@ -42,6 +43,7 @@ const Dashboard: React.FC = () => {
   const { user } = useUser();
   const [searchQuery, setSearchQuery] = useState("");
   const MONTHLY_LIMIT = user?.publicMetadata.plan === "basic" ? 1000 : 5000;
+  const router = useRouter();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -196,12 +198,29 @@ const Dashboard: React.FC = () => {
       {/* Modern Header */}
       <div className="flex flex-col md:flex-row items-center justify-between mb-10 bg-gradient-to-r from-cyan-50 to-blue-50 rounded-3xl p-8 shadow-lg relative overflow-hidden">
         <div>
-          <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-2">
-            Welcome back!
-          </h1>
-          <p className="text-lg text-gray-500">
-            Here's your productivity dashboard for this month.
-          </p>
+          {user?.publicMetadata.plan === "none" ? (
+            <>
+              <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-2">
+                Subscribe to get completions!
+              </h1>
+
+              <button
+                className="bg-cyan-600 text-white px-4 py-2 rounded-md"
+                onClick={() => router.push("/pricing")}
+              >
+                Subscribe
+              </button>
+            </>
+          ) : (
+            <>
+              <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-2">
+                Welcome back!
+              </h1>
+              <p className="text-lg text-gray-500">
+                Here's your productivity dashboard for this month.
+              </p>
+            </>
+          )}
         </div>
         <img
           src={AVATAR_URL}
