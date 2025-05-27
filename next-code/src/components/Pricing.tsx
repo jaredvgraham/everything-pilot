@@ -4,6 +4,7 @@ import { useState } from "react";
 import { CheckIcon, XMarkIcon, ArrowUpIcon } from "@heroicons/react/24/solid";
 import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
+import { SignedIn, SignedOut } from "@clerk/nextjs";
 
 const plans = [
   {
@@ -50,6 +51,10 @@ export default function PricingPage({
   );
 
   const handleSubscribe = async (plan: string) => {
+    if (!user) {
+      router.push("/sign-in");
+      return;
+    }
     if (user?.publicMetadata.plan === plan.toLowerCase()) {
       router.push("/settings");
       return;
