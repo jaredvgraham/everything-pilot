@@ -25,8 +25,7 @@ const plans = [
     planKey: "pro",
     features: [
       { text: "Core autocomplete features", available: true },
-      { text: "Unlimited completions", available: true },
-
+      { text: "5000 completions/month", available: true },
       { text: "Email support", available: true },
       { text: "Priority support", available: true },
     ],
@@ -216,8 +215,7 @@ export default function PricingPage({
                 {plan.planKey === "basic" && (
                   <div className="mt-6 p-4 bg-cyan-50 rounded-lg">
                     <p className="text-sm text-cyan-700">
-                      Need more? Upgrade to Pro anytime to unlock unlimited
-                      completions and priority support.
+                      Need more? Upgrade to Pro anytime.
                     </p>
                   </div>
                 )}
