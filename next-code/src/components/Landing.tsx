@@ -183,7 +183,14 @@ const LandingPage = () => {
           <h2 className="text-3xl font-bold text-white mb-8">
             Ready to Transform Your Browsing Experience?
           </h2>
-          <button className="bg-white text-cyan-600 px-8 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-all shadow-lg hover:shadow-xl">
+          <button
+            className="bg-white text-cyan-600 px-8 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-all shadow-lg hover:shadow-xl"
+            onClick={() => {
+              window.open(
+                "https://chromewebstore.google.com/detail/pilotype/dgigbnmdcejpknkgfgaoabglpfhocakh"
+              );
+            }}
+          >
             Get Started Now
           </button>
         </div>
