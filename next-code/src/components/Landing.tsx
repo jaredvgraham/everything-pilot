@@ -195,6 +195,15 @@ const LandingPage = () => {
           </button>
         </div>
       </div>
+      {/* Help Link Footer */}
+      <div className="w-full text-center py-6 bg-gray-50 border-t border-gray-100">
+        <a
+          href="/help"
+          className="text-blue-600 font-semibold underline hover:text-blue-800"
+        >
+          Need help? Visit our Help page
+        </a>
+      </div>
     </div>
   );
 };

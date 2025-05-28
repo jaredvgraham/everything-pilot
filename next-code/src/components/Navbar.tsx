@@ -11,10 +11,12 @@ const Navbar = () => {
   const navigationSignedOut = [
     { name: "Features", href: "/#features" },
     { name: "Pricing", href: "/pricing" },
+    { name: "Help", href: "/help" },
   ];
   const navigationSignedIn = [
     { name: "Dashboard", href: "/" },
     { name: "Settings", href: "/settings" },
+    { name: "Help", href: "/help" },
   ];
 
   return (

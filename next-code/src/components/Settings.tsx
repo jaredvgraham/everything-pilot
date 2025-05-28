@@ -99,6 +99,25 @@ const Settings = () => {
           </div>
         </div>
       </div>
+      {/* Help Callout */}
+      <div className="max-w-4xl mx-auto mt-8">
+        <div className="flex items-center bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded shadow">
+          <span className="text-2xl mr-3">🆘</span>
+          <div>
+            <span className="font-bold text-yellow-800">Need help?</span>
+            <span className="ml-2 text-yellow-800">
+              If you have trouble with the extension, check our{" "}
+            </span>
+            <a
+              href="/help"
+              className="text-blue-600 font-semibold underline hover:text-blue-800"
+            >
+              Help page
+            </a>
+            .
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
