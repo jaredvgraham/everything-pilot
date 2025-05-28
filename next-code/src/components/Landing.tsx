@@ -92,7 +92,22 @@ const LandingPage = () => {
             Add to Chrome
           </button>
         </div>
-        <AutocompleteDemo />
+        {/* Demo Video Section */}
+        <div className="w-full flex justify-center mt-8">
+          <div className="w-full max-w-2xl aspect-video rounded-xl overflow-hidden shadow-lg border border-gray-200">
+            <iframe
+              width="100%"
+              height="100%"
+              src="https://www.youtube.com/embed/fzec6n9ONtM"
+              title="Pilotype Demo Video"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
+              className="w-full h-full"
+            ></iframe>
+          </div>
+        </div>
+        {/* <AutocompleteDemo /> */}
       </div>
 
       {/* Features Section */}
