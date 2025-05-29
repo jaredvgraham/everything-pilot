@@ -33,6 +33,7 @@ export async function getSuggestion(
 ): Promise<string | null> {
   console.log("[AI Autocomplete] Fetching suggestion for input:", input)
   console.log("[AI Autocomplete] API Base URL:", API_BASE_URL)
+  console.log("t     oken", await getAuthToken())
 
   try {
     const site = window.location.hostname

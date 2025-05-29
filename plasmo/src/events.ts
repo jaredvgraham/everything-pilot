@@ -240,35 +240,41 @@ export function handleKeyDown(event: Event) {
       keyboardEvent.key
     )
     keyboardEvent.preventDefault()
-    if (element instanceof HTMLElement && element.isContentEditable) {
-      // Move caret to end
-      const range = document.createRange()
-      range.selectNodeContents(element)
-      range.collapse(false)
-      const sel = window.getSelection()
-      sel.removeAllRanges()
-      sel.addRange(range)
+    if (element instanceof HTMLTextAreaElement) {
+      // Insert at caret position for textarea
+      const start = element.selectionStart
+      const end = element.selectionEnd
+      const value = element.value
+      const newValue =
+        value.slice(0, start) + currentSuggestion + value.slice(end)
+      setElementText(element, newValue)
+      // Move cursor to after inserted suggestion
+      element.selectionStart = element.selectionEnd =
+        start + currentSuggestion.length
       element.focus()
-
-      // Insert suggestion at caret (which is now at the end)
-      // @ts-ignore
-      const success = document.execCommand(
-        "insertText",
-        false,
-        currentSuggestion
-      )
-      if (!success) {
-        alert("Could not insert suggestion. Please paste manually.")
+    } else if (element instanceof HTMLElement && element.isContentEditable) {
+      // Insert at caret position for contenteditable, move caret after, and dispatch input event
+      const sel = window.getSelection()
+      if (sel && sel.rangeCount > 0) {
+        const range = sel.getRangeAt(0)
+        range.deleteContents()
+        const textNode = document.createTextNode(currentSuggestion)
+        range.insertNode(textNode)
+        // Move caret after inserted text
+        range.setStartAfter(textNode)
+        range.setEndAfter(textNode)
+        sel.removeAllRanges()
+        sel.addRange(range)
+        element.focus()
+        // Trigger input event for React/other listeners (e.g., Twitter/X)
+        element.dispatchEvent(new Event("input", { bubbles: true }))
       }
     } else {
-      // Always append at the end
+      // Always append at the end for input
       const text = getElementText(element) + currentSuggestion
       setElementText(element, text)
       // Move cursor to end
-      if (
-        element instanceof HTMLInputElement ||
-        element instanceof HTMLTextAreaElement
-      ) {
+      if (element instanceof HTMLInputElement) {
         element.selectionStart = element.selectionEnd = text.length
         element.focus()
       }
