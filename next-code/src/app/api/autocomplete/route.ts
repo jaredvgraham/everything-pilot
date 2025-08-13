@@ -10,33 +10,42 @@ import { connectDB } from "@/app/backend/config/mongo";
 import Suggestion from "@/app/backend/models/suggestionModel";
 import User from "@/app/backend/models/userModel";
 
+// Shared CORS headers for all responses
+const CORS_HEADERS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+};
+
 // Handle preflight (OPTIONS) requests
 export async function OPTIONS() {
   return new Response(null, {
     status: 204,
-    headers: {
-      "Access-Control-Allow-Origin": "*", // Or specific extension origin
-      "Access-Control-Allow-Methods": "POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, Authorization",
-    },
+    headers: CORS_HEADERS,
   });
 }
 
 export async function POST(req: NextRequest) {
   try {
-    const { userId } = await auth();
     await connectDB();
+    const { userId } = await auth();
     if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401, headers: CORS_HEADERS }
+      );
     }
     const user = await User.findOne({ clerkId: userId });
     if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 401 });
+      return NextResponse.json(
+        { error: "User not found" },
+        { status: 401, headers: CORS_HEADERS }
+      );
     }
     if (user.plan === "none") {
       return NextResponse.json(
         { error: "User doesnt have a plan" },
-        { status: 401 }
+        { status: 401, headers: CORS_HEADERS }
       );
     }
     const { input, context, site } = await req.json();
@@ -46,7 +55,6 @@ export async function POST(req: NextRequest) {
     console.log("input", input);
 
     // --- MEMORY MODELS: Use mongo services to find or create relevant memory docs ---
-
     const siteDoc = await findOrCreateSite(site);
     const [userMemory, siteMemory] = await Promise.all([
       findOrCreateUserMemory(userId),
@@ -157,7 +165,7 @@ export async function POST(req: NextRequest) {
     // Send response immediately
     const response = NextResponse.json(
       { suggestion },
-      { headers: { "Access-Control-Allow-Origin": "*" } }
+      { headers: CORS_HEADERS }
     );
 
     // --- FACT EXTRACTION & MEMORY UPDATES: Run in background ---
@@ -201,8 +209,17 @@ export async function POST(req: NextRequest) {
     })();
 
     return response;
-  } catch (error) {
-    console.error("❌ Token verification failed:", error);
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  } catch (error: any) {
+    // If Clerk throws an auth error, return 401 with CORS; otherwise 500 with CORS
+    const isAuthError =
+      error?.name?.toLowerCase?.().includes("clerk") ||
+      error?.message?.toLowerCase?.().includes("unauthorized");
+    const status = isAuthError ? 401 : 500;
+    const message = isAuthError ? "Unauthorized" : "Internal Server Error";
+    console.error("Autocomplete error:", error);
+    return NextResponse.json(
+      { error: message },
+      { status, headers: CORS_HEADERS }
+    );
   }
 }
