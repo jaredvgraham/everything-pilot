@@ -40,13 +40,15 @@ export default function ExtensionLoginPage() {
   }, [isLoaded, isSignedIn, session]);
 
   return (
-    <main className="p-6 text-center max-w-sm mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Sign in or Sign up</h1>
-      <SignIn forceRedirectUrl={"/"} />
+    <main className="pt-24 pb-12 px-6 min-h-[calc(100vh-4rem)]">
+      <div className="max-w-sm mx-auto text-center">
+        <h1 className="text-2xl font-bold mb-4">Sign in or Sign up</h1>
+        <SignIn forceRedirectUrl={"/"} />
 
-      <p className="mt-4 text-sm text-gray-500">
-        After signing in, this window will close automatically.
-      </p>
+        <p className="mt-4 text-sm text-gray-500">
+          After signing in, this window will close automatically.
+        </p>
+      </div>
     </main>
   );
 }
