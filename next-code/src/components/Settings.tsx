@@ -2,10 +2,15 @@
 
 import PricingPage from "@/components/Pricing";
 import { SignOutButton, useUser } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
 const Settings = () => {
+  const router = useRouter();
   const { user } = useUser();
+  if (user?.publicMetadata.plan === "none") {
+    router.push("/pricing");
+  }
 
   const [showPlans, setShowPlans] = useState(false);
   if (!user) return null;

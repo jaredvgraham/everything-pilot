@@ -44,6 +44,9 @@ const Dashboard: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const MONTHLY_LIMIT = user?.publicMetadata.plan === "basic" ? 1000 : 5000;
   const router = useRouter();
+  if (user?.publicMetadata.plan === "none") {
+    router.push("/pricing");
+  }
 
   useEffect(() => {
     const fetchData = async () => {
