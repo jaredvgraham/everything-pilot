@@ -44,6 +44,8 @@ const Dashboard: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const MONTHLY_LIMIT = user?.publicMetadata.plan === "basic" ? 1000 : 5000;
   const router = useRouter();
+  const [newMemory, setNewMemory] = useState<string>("");
+  const [adding, setAdding] = useState<boolean>(false);
   if (user?.publicMetadata.plan === "none") {
     router.push("/pricing");
   }
@@ -177,6 +179,50 @@ const Dashboard: React.FC = () => {
       setError("Failed to delete site memory");
     } finally {
       setDeleting(null);
+    }
+  };
+
+  const handleAddNewMemory = async () => {
+    const fact = newMemory.trim();
+    if (!fact) return;
+    if (fact.length > 500) {
+      setError("Fact too long (max 500 characters)");
+      return;
+    }
+    setAdding(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/dashboard/user-memory", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fact }),
+      });
+      if (!res.ok) {
+        let message = "Failed to add new memory";
+        try {
+          const j = await res.json();
+          if (j?.error) message = j.error;
+        } catch {}
+        throw new Error(message);
+      }
+      const json = await res.json();
+      setData((prev) =>
+        prev
+          ? {
+              ...prev,
+              userMemory: {
+                ...prev.userMemory,
+                facts: json.facts,
+                lastUpdated: json.lastUpdated,
+              },
+            }
+          : prev
+      );
+      setNewMemory("");
+    } catch (err: any) {
+      setError(err?.message || "Failed to add new memory");
+    } finally {
+      setAdding(false);
     }
   };
 
@@ -326,6 +372,49 @@ const Dashboard: React.FC = () => {
               "EEE, MMM d, yyyy h:mm a"
             )}
           </div>
+          {/* Add new memory input */}
+          <div className="">
+            <div className="p-[1px] rounded-2xl bg-gradient-to-r from-cyan-400/30 to-blue-500/30">
+              <div className="relative flex items-center gap-3 bg-white rounded-2xl px-4 py-2 shadow-sm focus-within:shadow-lg transition">
+                <span className="pointer-events-none text-cyan-500">✨</span>
+                <input
+                  type="text"
+                  value={newMemory}
+                  onChange={(e) => setNewMemory(e.target.value)}
+                  placeholder="Add a new memory (e.g., role, interest, goal)"
+                  maxLength={500}
+                  className="flex-1 bg-transparent outline-none placeholder-gray-400 text-gray-800"
+                  disabled={adding || userMemory.facts.length >= 100}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleAddNewMemory();
+                    }
+                  }}
+                />
+                <button
+                  className={`px-4 py-2 rounded-xl text-white font-semibold shadow-md hover:shadow-lg transition ${
+                    adding
+                      ? "bg-cyan-300"
+                      : "bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700"
+                  } disabled:opacity-60 disabled:cursor-not-allowed`}
+                  onClick={handleAddNewMemory}
+                  disabled={adding || userMemory.facts.length >= 100}
+                  title={
+                    userMemory.facts.length >= 100
+                      ? "Your memory is full. Delete some facts to add new ones."
+                      : "Add memory"
+                  }
+                >
+                  {adding ? "Adding..." : "Add"}
+                </button>
+              </div>
+            </div>
+            <div className="mt-1 flex justify-between text-xs text-gray-500">
+              <span>Add concise, persistent facts (role, interest, goal)</span>
+              <span>{newMemory.length}/100</span>
+            </div>
+          </div>
           {userMemory.facts.length >= 100 && (
             <div className="text-xs text-red-600 font-semibold mb-2">
               Your user memory is full. Delete facts to make space for new ones.
@@ -352,6 +441,7 @@ const Dashboard: React.FC = () => {
               ))
             )}
           </ul>
+
           {userMemory.facts.length > 0 && (
             <button
               className="mt-4 text-sm text-red-600 hover:underline font-semibold self-end"
