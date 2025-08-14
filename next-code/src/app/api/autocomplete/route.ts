@@ -12,7 +12,7 @@ import User from "@/app/backend/models/userModel";
 import {
   AutocompleteModelError,
   generateAutocompleteSuggestion,
-} from "@/app/backend/services/gemini/autocomplete";
+} from "@/app/backend/services/openAi/autocomplete";
 
 // Shared CORS headers for all responses
 const CORS_HEADERS = {
