@@ -111,8 +111,8 @@ export async function generateAutocompleteSuggestion({
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt },
       ],
-      max_tokens: 20,
-      temperature: 0.2,
+      //   max_tokens: 20,
+      //   temperature: 0.2,
     });
   } catch (err: any) {
     const msg = err?.message || "Gemini completion failed";
