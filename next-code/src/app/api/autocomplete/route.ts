@@ -9,6 +9,10 @@ import { extractRelevantFacts } from "@/app/backend/services/gemini/factExtracto
 import { connectDB } from "@/app/backend/config/mongo";
 import Suggestion from "@/app/backend/models/suggestionModel";
 import User from "@/app/backend/models/userModel";
+import {
+  AutocompleteModelError,
+  generateAutocompleteSuggestion,
+} from "@/app/backend/services/gemini/autocomplete";
 
 // Shared CORS headers for all responses
 const CORS_HEADERS = {
@@ -63,91 +67,35 @@ export async function POST(req: NextRequest) {
 
     // --- END MEMORY MODELS SETUP ---
 
-    const systemPrompt = `
-    You are an autocomplete AI. Your ONLY job is to continue the user's text as naturally as possible, as if you are typing the next words for them.
-    
-    CRITICAL RULES:
-    - NEVER answer the user's input or question
-    - NEVER rephrase or repeat what the user has typed
-    - NEVER include the user's input in your response
-    
-    - ONLY provide the next few words or sentence that would naturally follow
-    - If the user is asking a question, DO NOT answer it - just continue their typing
-    - If the user is making a statement, DO NOT respond to it - just continue their thought
-    
-    Examples:
-    User: "What is the best way to"
-    Correct: "learn programming for someone who has no experience?"
-    Wrong: "The best way to learn programming is to start with the basics"
-    
-    User: "I think we should"
-    Correct: "consider all options before making a decision"
-    Wrong: "You're right, we should consider all options"
-    
-    User: "Can you help me with"
-    Correct: "this problem I'm having"
-    Wrong: "I'd be happy to help you with your problem"
-    
-    Format:
-    - No gaps between lines
-    - Just the continuation text`;
+    let suggestion: string;
+    let usage: { promptTokens?: number; completionTokens?: number } | undefined;
+    try {
+      const result = await generateAutocompleteSuggestion({
+        input,
+        context,
+        site,
+        userMemoryFacts: userMemory.facts,
+        siteMemoryFacts: siteMemory.facts,
+      });
+      suggestion = result.suggestion;
+      usage = result.usage;
+    } catch (modelErr) {
+      if (modelErr instanceof AutocompleteModelError) {
+        console.error("Gemini service error:", {
+          message: modelErr.message,
+          code: modelErr.code,
+          status: modelErr.httpStatus,
+        });
+        return NextResponse.json(
+          { error: modelErr.code, message: modelErr.message },
+          { status: modelErr.httpStatus, headers: CORS_HEADERS }
+        );
+      }
+      throw modelErr;
+    }
 
-    const userPrompt = `
-    The user is currently on the following website:
-    ${site}
-    
-    This is what we know about the user:
-    ${userMemory.facts.length ? userMemory.facts.join(", ") : "None"}
-
-    This is how the user has interacted with the website in the past:
-    ${siteMemory.facts.length ? siteMemory.facts.join(", ") : "None"}
-
-    Context of the website and what the user is possibly referring to in their current text:
-    ${context}
-    
-
-
-    Instructions:
-    - Do NOT repeat or rephrase the user's input.
-    - Do not answer the user's input.
-    - Do NOT include the user's input in your response.
-    - Do not add big spaces between words.
-    - Do not add quotation marks.
-    - Do not add spaces at the beginning or end of your response.
-    - Do not add gaps between lines.
-    - Only provide the next words or sentence that would logically follow.
-    
-    **VERY IMPORTANT BEFORE YOU RETURN YOUR RESPONSE: Do not answer the user input no matter what. And do not include the user's input in your response.**
-
-    **IMPORTANT: NEVER ANSWER THE USER'S INPUT. THIS IS VERY IMPORTANT. THIS IS THE MOST IMPORTANT RULE. THAT CAN BE VERY DANGEROUS IF YOU BREAK IT.**
-
-    User is currently typing:
-    "${input}"
-    **VERY IMPORTANT BEFORE YOU RETURN YOUR RESPONSE: Do not answer the user input no matter what. And do not include the user's input in your response.**
-
-    **IMPORTANT: NEVER ANSWER THE USER'S INPUT. THIS IS VERY IMPORTANT. THIS IS THE MOST IMPORTANT RULE. THAT CAN BE VERY DANGEROUS IF YOU BREAK IT.**
-
-    **IMPORTANT: - The user might be talking to a LLM in the context given, but you are not. You are an autocomplete AI that is typing the next words for the user. - **
-
-    Your completion of the user's text:
-    `;
-
-    const completion = await gemini.chat.completions.create({
-      model: "gemini-2.0-flash",
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: userPrompt },
-      ],
-      max_tokens: 20,
-      temperature: 0.2,
-    });
-
-    const suggestion =
-      completion.choices[0]?.message?.content?.replace(/^"|"$/g, "").trim() ||
-      "";
-
-    console.log("token input", completion.usage?.prompt_tokens);
-    console.log("token output", completion.usage?.completion_tokens);
+    console.log("token input", usage?.promptTokens);
+    console.log("token output", usage?.completionTokens);
     console.log("suggestion", suggestion);
 
     // Log the suggestion in the database
