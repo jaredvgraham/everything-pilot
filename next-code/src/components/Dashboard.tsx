@@ -46,9 +46,10 @@ const Dashboard: React.FC = () => {
   const router = useRouter();
   const [newMemory, setNewMemory] = useState<string>("");
   const [adding, setAdding] = useState<boolean>(false);
-  if (user?.publicMetadata.plan === "none") {
-    router.push("/pricing");
-  }
+  // TODO: Uncomment this when we want a plan system
+  // if (user?.publicMetadata.plan === "none") {
+  //   router.push("/pricing");
+  // }
 
   useEffect(() => {
     const fetchData = async () => {

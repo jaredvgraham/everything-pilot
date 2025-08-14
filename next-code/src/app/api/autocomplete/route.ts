@@ -46,12 +46,13 @@ export async function POST(req: NextRequest) {
         { status: 401, headers: CORS_HEADERS }
       );
     }
-    if (user.plan === "none") {
-      return NextResponse.json(
-        { error: "User doesnt have a plan" },
-        { status: 401, headers: CORS_HEADERS }
-      );
-    }
+    // TODO: Uncomment this when we want a plan system
+    // if (user.plan === "none") {
+    //   return NextResponse.json(
+    //     { error: "User doesnt have a plan" },
+    //     { status: 401, headers: CORS_HEADERS }
+    //   );
+    // }
     const { input, context, site } = await req.json();
     console.log("input", input);
     console.log("input", input);
